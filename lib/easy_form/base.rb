@@ -119,43 +119,40 @@ module EasyForm
     end
 
     def each_element(&block)
-      collection = [elements, forms.values.flatten.map(&:elements)].flatten
+      collection = [elements.values, forms.values.flatten.map(&:elements).map(&:values)].flatten
       collection.each(&block)
+    end
+
+    def render_elements
+      each_element(&method(:render_element))
     end
 
     def render_element(element)
       label(for: element.html_id) { element.label } if element.label
-      case element.input_options[:type].to_sym
-      when :checkbox
-        checkbox_tag(element)
-      when :radio
-        radio_tag(element)
-      when :select
-        select_tag(element)
-      when :textarea
-        textarea_tag(element)
+      if %i[checkbox radio select textarea].include?(element.input_options[:type].to_sym)
+        public_send("render_#{element.input_options[:type]}", element)
       else
-        input_tag(element)
+        render_input(element)
       end
     end
 
-    def input_tag(element)
+    def render_input(element)
       input(**element.html_attributes)
     end
 
-    def checkbox_tag(element)
+    def render_checkbox(element)
       input(name: element.html_name, type: "hidden", value: "0", autocomplete: "off")
       input(**element.html_attributes.merge(type: "checkbox", value: "1"))
     end
 
-    def radio_tag(element)
+    def render_radio(element)
       element.select_options.each do |value, label|
         label(for: element.html_id) { label }
         input(**element.html_attributes.merge(type: "radio", value: value, checked: value == element.value))
       end
     end
 
-    def select_tag(element)
+    def render_select(element)
       select(**element.html_attributes) do
         element.select_options.each do |value, label|
           option(value: value, selected: value == element.value) { label }
@@ -163,7 +160,7 @@ module EasyForm
       end
     end
 
-    def textarea_tag(element)
+    def render_textarea(element)
       textarea(**element.html_attributes) { element.value }
     end
 

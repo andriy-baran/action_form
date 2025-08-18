@@ -10,14 +10,6 @@ class FormObject < EasyForm::Base
       output(type: :bool, presence: true)
     end
 
-    has_many :pets do
-      element :id do
-        input(type: :select, multiple: true, class: "form-control")
-        output(type: :integer, presence: true)
-        options(PETS.map(&:to_a))
-      end
-    end
-
     has_one :car do
       element :maker_id do
         input(type: :radio, class: "form-control")
@@ -25,26 +17,22 @@ class FormObject < EasyForm::Base
         options(MAKERS.map(&:to_a))
       end
     end
+
+    has_many :pets do
+      element :id do
+        input(type: :select, multiple: true, class: "form-control")
+        output(type: :integer, presence: true)
+        options(PETS.map(&:to_a))
+      end
+    end
   end
 
-  def view_template # rubocop:disable Metrics/MethodLength
+  def view_template
     div(class: "row") do
       form(method: "post", action: "/") do
-        div(class: "col-md-6") do
-          elements.values_at(:birthdate, :biography).each do |element|
+        each_element do |element|
+          div(class: "col-md-6") do
             render_element(element)
-          end
-        end
-        div(class: "col-md-6") do
-          forms[:car].elements.each do |name, element|
-            render_element(element)
-          end
-        end
-        div(class: "col-md-6") do
-          forms[:pets].each do |form|
-            form.elements.each do |name, element|
-              render_element(element)
-            end
           end
         end
       end
@@ -88,14 +76,15 @@ RSpec.describe "FormObject" do
   it "renders a form with nested elements" do
     form = FormObject.new(name: :info, object: Info.new)
     html = form.call
-
     expect(html).to eq(
       '<div class="row">' \
         '<form method="post" action="/">' \
           '<div class="col-md-6">' \
             '<label for="info_birthdate">Birthdate</label>' \
             '<input type="text" class="form-control" name="info[birthdate]" id="info_birthdate" value="1990-01-01">' \
-            '<label for="info_biography">Biography</label>' \
+          "</div>" \
+          '<div class="col-md-6">' \
+          '<label for="info_biography">Biography</label>' \
             '<input name="info[biography]" type="hidden" value="0" autocomplete="off">' \
             '<input type="checkbox" name="info[biography]" id="info_biography" value="1">' \
           "</div>" \
@@ -117,6 +106,8 @@ RSpec.describe "FormObject" do
             '<option value="4">Bella</option>' \
             '<option value="5">Luna</option>' \
             "</select>" \
+          "</div>" \
+          '<div class="col-md-6">' \
             '<label for="info_pets_attributes_1_id">Id</label>' \
             '<select multiple class="form-control" name="info[pets_attributes][1][id]" id="info_pets_attributes_1_id">' \
             '<option value="1">Fido</option>' \
@@ -124,7 +115,10 @@ RSpec.describe "FormObject" do
             '<option value="3">Max</option>' \
             '<option value="4">Bella</option>' \
             '<option value="5">Luna</option>' \
-            "</select></div></form></div>"
+            "</select>" \
+          "</div>" \
+        "</form>" \
+      "</div>"
     )
     schema = form.schema.new(birthdate: "1990-01-01", biography: true, pets_attributes: [{ id: 1 }, { id: 2 }],
                              car_attributes: { maker_id: 1 })
