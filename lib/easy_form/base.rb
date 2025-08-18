@@ -1,66 +1,11 @@
 module EasyForm
   class Base < ::Phlex::HTML
-    def self.hash_to_dsl(hash)
-      lines = []
-
-      hash.each do |type, value|
-        case type
-        when :each
-          value.each do |collection_name, nested_hash|
-            lines << "each :#{collection_name} do"
-            nested_lines = hash_to_dsl(nested_hash)
-            lines.concat(nested_lines.map { |line| "  #{line}" })
-            lines << "end"
-          end
-        when :has
-          value.each do |association_name, nested_hash|
-            lines << "has :#{association_name} do"
-            nested_lines = hash_to_dsl(nested_hash)
-            lines.concat(nested_lines.map { |line| "  #{line}" })
-            lines << "end"
-          end
-        else
-          # Handle regular input types
-          if value.is_a?(Array) && value.length == 2
-            attribute_name, options = value
-            options_str = options.map { |k, v| "#{k}: #{v.inspect}" }.join(", ")
-            lines << "#{type} :#{attribute_name}#{options_str.empty? ? "" : ", #{options_str}"}"
-          end
-        end
-      end
-
-      lines
-    end
-
-    def self.hash_to_dsl_string(hash)
-      hash_to_dsl(hash).join("\n")
-    end
+    include EasyForm::SchemaDSL
 
     def schema
       @schema ||= Class.new(EasyParams::Base).tap do |schema|
         schema.class_eval(self.class.hash_to_dsl_string(traverse_hash))
       end
-    end
-
-    def traverse_hash
-      data = elements.each_with_object({}) do |(name, element), value|
-        options = element.output_options.dup
-        method_name = options.delete(:type)
-
-        value[method_name] = [name, options]
-        value
-      end
-
-      forms.each do |name, nested_form|
-        if nested_form.is_a?(Array)
-          data[:each] = {}
-          data[:each][:"#{name}_attributes"] = nested_form.first.traverse_hash
-        else
-          data[:has] = {}
-          data[:has][:"#{name}_attributes"] = nested_form.traverse_hash
-        end
-      end
-      data
     end
 
     class << self
