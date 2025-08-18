@@ -88,7 +88,7 @@ RSpec.describe "FormObject" do
   it "renders a form with nested elements" do
     form = FormObject.new(name: :info, object: Info.new)
     html = form.call
-    binding.pry
+
     expect(html).to eq(
       '<div class="row">' \
         '<form method="post" action="/">' \
@@ -126,10 +126,11 @@ RSpec.describe "FormObject" do
             '<option value="5">Luna</option>' \
             "</select></div></form></div>"
     )
-    schema = form.schema.new(birthdate: "1990-01-01", biography: true)
+    schema = form.schema.new(birthdate: "1990-01-01", biography: true, pets_attributes: [{ id: 1 }, { id: 2 }],
+                             car_attributes: { maker_id: 1 })
     expect(schema.birthdate).to eq(Date.parse("1990-01-01"))
     expect(schema.biography).to eq(true)
-    expect(schema.pets.map(&:id)).to eq([1, 2])
-    expect(schema.car.maker_id).to eq(1)
+    expect(schema.pets_attributes.map(&:id)).to eq([1, 2])
+    expect(schema.car_attributes.maker_id).to eq("1")
   end
 end
