@@ -32,18 +32,17 @@ module EasyForm
       @options = options
       @elements = {}
       @forms = {}
-      instance_exec(&self.class.build_block) if self.class.build_block
+      build
     end
 
-    def self.build(&block)
-      block ? @build_block = block : @build_block
-    end
+    def build; end
 
+    # TODO: add support for outputless elements
     def element(name, &block)
       value = @object.public_send(name)
       elements[name] = EasyForm::Element.new(name, value, parent_name: @name)
       elements[name].instance_exec(&block)
-      # define_method("#{name}_element") do
+      # define_singleton_method("#{name}_element") do
       #   elements[name]
       # end
     end
@@ -69,6 +68,50 @@ module EasyForm
     def each_element(&block)
       collection = [elements, forms.values.flatten.map(&:elements)].flatten
       collection.each(&block)
+    end
+
+    def render_element(element)
+      label(for: element.html_id) { element.label } if element.label
+      case element.input_options[:type].to_sym
+      when :checkbox
+        checkbox_tag(element)
+      when :radio
+        radio_tag(element)
+      when :select
+        select_tag(element)
+      when :textarea
+        textarea_tag(element)
+      else
+        input_tag(element)
+      end
+    end
+
+    def input_tag(element)
+      input(**element.html_attributes)
+    end
+
+    def checkbox_tag(element)
+      input(name: element.html_name, type: "hidden", value: "0", autocomplete: "off")
+      input(**element.html_attributes.merge(type: "checkbox", value: "1"))
+    end
+
+    def radio_tag(element)
+      element.select_options.each do |value, label|
+        label(for: element.html_id) { label }
+        input(**element.html_attributes.merge(type: "radio", value: value, checked: value == element.value))
+      end
+    end
+
+    def select_tag(element)
+      select(**element.html_attributes) do
+        element.select_options.each do |value, label|
+          option(value: value, selected: value == element.value) { label }
+        end
+      end
+    end
+
+    def textarea_tag(element)
+      textarea(**element.html_attributes) { element.value }
     end
 
     private
