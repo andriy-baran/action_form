@@ -16,6 +16,12 @@ class FormObject < EasyForm::Base
       output(type: :bool, presence: true)
     end
 
+    element :interests do
+      input(type: :checkbox, label: "Interests")
+      output(type: :array, of: :integer, presence: true)
+      options(INTERESTS.map(&:to_a))
+    end
+
     has_one :car do
       element :maker_id do
         input(type: :radio, class: "form-control")
@@ -49,6 +55,7 @@ end
 Pet = Struct.new(:id, :name)
 Car = Struct.new(:maker_id)
 Maker = Struct.new(:id, :name)
+Interest = Struct.new(:id, :name)
 
 MAKERS = [
   Maker.new(1, "Toyota"),
@@ -64,8 +71,15 @@ PETS = [
   Pet.new(5, "Luna")
 ].freeze
 
+INTERESTS = [
+  Interest.new(1, "Science"),
+  Interest.new(2, "Technology"),
+  Interest.new(3, "Engineering"),
+  Interest.new(4, "Math")
+].freeze
+
 class Info
-  attr_accessor :birthdate, :biography, :pets, :car
+  attr_accessor :birthdate, :biography, :pets, :car, :interests
 
   def initialize
     @birthdate = "1990-01-01"
@@ -75,6 +89,7 @@ class Info
       Pet.new(2, "Buddy")
     ]
     @car = Car.new(1)
+    @interests = [1, 3] # Science and Engineering
   end
 
   def persisted?
@@ -106,6 +121,17 @@ RSpec.describe "FormObject" do
         '<label for="info_biography">Biography</label>' \
           '<input name="info[biography]" type="hidden" value="0" autocomplete="off">' \
           '<input type="checkbox" name="info[biography]" id="info_biography" value="1">' \
+        "</div>" \
+        '<div class="col-md-6">' \
+          '<label for="info_interests">Interests</label>' \
+          '<input type="checkbox" name="info[interests][]" id="info_interests_1" value="1" checked>' \
+          '<label for="info_interests_1">Science</label>' \
+          '<input type="checkbox" name="info[interests][]" id="info_interests_2" value="2">' \
+          '<label for="info_interests_2">Technology</label>' \
+          '<input type="checkbox" name="info[interests][]" id="info_interests_3" value="3" checked>' \
+          '<label for="info_interests_3">Engineering</label>' \
+          '<input type="checkbox" name="info[interests][]" id="info_interests_4" value="4">' \
+          '<label for="info_interests_4">Math</label>' \
         "</div>" \
         '<div class="col-md-6">' \
           '<label for="info_car_attributes_maker_id">Maker</label>' \
@@ -146,10 +172,11 @@ RSpec.describe "FormObject" do
     html = form.call
     expect(html).to eq(expected_html)
 
-    schema = form.schema_definition.new(birthdate: "1990-01-01", biography: true, pets_attributes: [{ id: 1 }, { id: 2 }],
+    schema = form.schema_definition.new(birthdate: "1990-01-01", biography: true, interests: [1, 3], pets_attributes: [{ id: 1 }, { id: 2 }],
                                         car_attributes: { maker_id: 1 })
     expect(schema.birthdate).to eq(Date.parse("1990-01-01"))
     expect(schema.biography).to eq(true)
+    expect(schema.interests.to_a).to eq([1, 3])
     expect(schema.pets_attributes.map(&:id)).to eq([1, 2])
     expect(schema.car_attributes.maker_id).to eq("1")
   end

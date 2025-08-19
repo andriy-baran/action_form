@@ -20,22 +20,42 @@ module EasyForm
       input(**element.html_attributes)
     end
 
-    def render_checkbox(element)
-      input(name: element.html_name, type: "hidden", value: "0", autocomplete: "off")
-      input(**element.html_attributes.merge(type: "checkbox", value: "1"))
+    def render_checkbox(element) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+      if element.select_options
+        element.select_options.each do |value, label_text|
+          checkbox_id = "#{element.html_id}_#{value}"
+          checkbox_attrs = element.html_attributes.merge(
+            value: value,
+            id: checkbox_id,
+            name: "#{element.html_name}[]",
+            checked: Array(element.value).include?(value)
+          )
+
+          input(**checkbox_attrs)
+          label(for: checkbox_id) { label_text }
+        end
+      else
+        input(name: element.html_name, type: "hidden", value: "0", autocomplete: "off")
+        input(**element.html_attributes.merge(type: "checkbox", value: "1"))
+      end
     end
 
     def render_radio(element)
-      element.select_options.each do |value, label|
-        label(for: element.html_id) { label }
+      element.select_options.each do |value, label_text|
+        label(for: element.html_id) { label_text }
         input(**element.html_attributes.merge(type: "radio", value: value, checked: value == element.value))
       end
     end
 
     def render_select(element)
       select(**element.html_attributes) do
-        element.select_options.each do |value, label|
-          option(value: value, selected: value == element.value) { label }
+        element.select_options.each do |value, label_text|
+          selected = if element.input_options[:multiple]
+                       Array(element.value).include?(value)
+                     else
+                       value == element.value
+                     end
+          option(value: value, selected: selected) { label_text }
         end
       end
     end
