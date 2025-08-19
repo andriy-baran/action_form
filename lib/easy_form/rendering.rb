@@ -9,8 +9,8 @@ module EasyForm
 
     def render_element(element)
       label(for: element.html_id) { element.label } if element.label
-      if %i[checkbox radio select textarea].include?(element.input_options[:type].to_sym)
-        public_send("render_#{element.input_options[:type]}", element)
+      if %i[checkbox radio select textarea].include?(element.class.input_options[:type].to_sym)
+        public_send("render_#{element.class.input_options[:type]}", element)
       else
         render_input(element)
       end
@@ -21,8 +21,8 @@ module EasyForm
     end
 
     def render_checkbox(element) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-      if element.select_options
-        element.select_options.each do |value, label_text|
+      if element.class.select_options
+        element.class.select_options.each do |value, label_text|
           checkbox_id = "#{element.html_id}_#{value}"
           checkbox_attrs = element.html_attributes.merge(
             value: value,
@@ -41,7 +41,7 @@ module EasyForm
     end
 
     def render_radio(element)
-      element.select_options.each do |value, label_text|
+      element.class.select_options.each do |value, label_text|
         label(for: element.html_id) { label_text }
         input(**element.html_attributes.merge(type: "radio", value: value, checked: value == element.value))
       end
@@ -49,8 +49,8 @@ module EasyForm
 
     def render_select(element)
       select(**element.html_attributes) do
-        element.select_options.each do |value, label_text|
-          selected = if element.input_options[:multiple]
+        element.class.select_options.each do |value, label_text|
+          selected = if element.class.input_options[:multiple]
                        Array(element.value).include?(value)
                      else
                        value == element.value

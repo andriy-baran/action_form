@@ -2,56 +2,6 @@
 # rubocop:disable Metrics/BlockLength
 # frozen_string_literal: true
 
-class FormObject < EasyForm::Base
-  attr_accessor :helpers
-
-  def build # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-    element :birthdate do
-      input(type: :text, class: "form-control")
-      output(type: :date, presence: true)
-    end
-
-    element :biography do
-      input(type: :checkbox, label: "Biography")
-      output(type: :bool, presence: true)
-    end
-
-    element :interests do
-      input(type: :checkbox, label: "Interests")
-      output(type: :array, of: :integer, presence: true)
-      options(INTERESTS.map(&:to_a))
-    end
-
-    has_one :car do
-      element :maker_id do
-        input(type: :radio, class: "form-control")
-        output(type: :string, presence: true)
-        options(MAKERS.map(&:to_a))
-      end
-    end
-
-    has_many :pets do
-      element :id do
-        input(type: :select, multiple: true, class: "form-control")
-        output(type: :integer, presence: true)
-        options(PETS.map(&:to_a))
-      end
-    end
-  end
-
-  def render_element(element)
-    div(class: "col-md-6") do
-      super
-    end
-  end
-
-  def view_template
-    div(class: "row") do
-      render_form
-    end
-  end
-end
-
 Pet = Struct.new(:id, :name)
 Car = Struct.new(:maker_id)
 Maker = Struct.new(:id, :name)
@@ -77,6 +27,54 @@ INTERESTS = [
   Interest.new(3, "Engineering"),
   Interest.new(4, "Math")
 ].freeze
+
+class FormObject < EasyForm::Base
+  attr_accessor :helpers
+
+  element :birthdate do
+    input(type: :text, class: "form-control")
+    output(type: :date, presence: true)
+  end
+
+  element :biography do
+    input(type: :checkbox, label: "Biography")
+    output(type: :bool, presence: true)
+  end
+
+  element :interests do
+    input(type: :checkbox, label: "Interests")
+    output(type: :array, of: :integer, presence: true)
+    options(INTERESTS.map(&:to_a))
+  end
+
+  has_one :car do
+    element :maker_id do
+      input(type: :radio, class: "form-control")
+      output(type: :string, presence: true)
+      options(MAKERS.map(&:to_a))
+    end
+  end
+
+  has_many :pets do
+    element :id do
+      input(type: :select, multiple: true, class: "form-control")
+      output(type: :integer, presence: true)
+      options(PETS.map(&:to_a))
+    end
+  end
+
+  def render_element(element)
+    div(class: "col-md-6") do
+      super
+    end
+  end
+
+  def view_template
+    div(class: "row") do
+      render_form
+    end
+  end
+end
 
 class Info
   attr_accessor :birthdate, :biography, :pets, :car, :interests
