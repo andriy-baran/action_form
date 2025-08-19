@@ -3,7 +3,7 @@
 module EasyForm
   # Represents a form element with input/output configuration and HTML attributes
   class Element
-    attr_reader :name, :input_options, :output_options, :html_name, :html_id, :label, :select_options
+    attr_reader :name, :input_options, :output_options, :html_name, :html_id, :select_options
     attr_accessor :value
 
     def initialize(name, value, parent_name: nil)
@@ -17,7 +17,7 @@ module EasyForm
       attr_reader :label, :input_options, :output_options, :select_options
 
       def input(type:, label: nil, **options)
-        @label = label || name.to_s.humanize
+        @label = label
         @input_options = { type: type }.merge(options)
       end
 
@@ -46,6 +46,10 @@ module EasyForm
       elsif self.class.input_options[:type].to_sym == :radio
         value == html_value
       end
+    end
+
+    def label
+      self.class.label || name.to_s.humanize
     end
 
     def html_attributes

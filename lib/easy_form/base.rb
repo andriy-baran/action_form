@@ -45,7 +45,7 @@ module EasyForm
       end
     end
 
-    def build_from_model
+    def build_from_model # rubocop:disable Metrics/MethodLength
       self.class.forms.each do |name, form_definition|
         value = @model.public_send(name)
         if form_definition.is_a?(Array)
@@ -70,13 +70,13 @@ module EasyForm
     def build_many_forms(name, form_definition, value)
       Array(value).each.with_index do |item, index|
         html_name = @scope ? "#{@scope}[#{name}_attributes][#{index}]" : "[#{name}_attributes][#{index}]"
-        @forms_instances << form_definition.new(scope: html_name, model: item).tap(&:build_from_model)
+        @forms_instances << form_definition.new(scope: html_name, model: item)
       end
     end
 
     def build_one_form(name, form_definition, value)
       html_name = @scope ? "#{@scope}[#{name}_attributes]" : "#{name}_attributes"
-      @forms_instances << form_definition.new(scope: html_name, model: value).tap(&:build_from_model)
+      @forms_instances << form_definition.new(scope: html_name, model: value)
     end
 
     def model_name
