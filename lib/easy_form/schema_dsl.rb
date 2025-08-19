@@ -1,12 +1,15 @@
+# frozen_string_literal: true
+
 module EasyForm
+  # Provides DSL methods for defining form schemas and converting them to EasyParams
   module SchemaDSL
     def self.included(base)
       base.extend(ClassMethods)
       base.include(InstanceMethods)
     end
 
-    module ClassMethods
-      def hash_to_dsl(hash)
+    module ClassMethods # rubocop:disable Style/Documentation
+      def hash_to_dsl(hash) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         lines = []
 
         hash.each do |type, value|
@@ -20,7 +23,7 @@ module EasyForm
           else
             attribute_name, options = value
             options_str = options.map { |k, v| "#{k}: #{v.inspect}" }.join(",") if options.is_a?(Hash)
-            lines << "#{type} :#{attribute_name}#{options_str.empty? ? "" : ",#{options_str}"}"
+            lines << "#{type} #{[":#{attribute_name}", options_str].compact.join(", ")}"
           end
         end
 
@@ -32,8 +35,14 @@ module EasyForm
       end
     end
 
-    module InstanceMethods
-      def traverse_hash
+    module InstanceMethods # rubocop:disable Style/Documentation
+      def schema_definition
+        @schema_definition ||= Class.new(EasyParams::Base).tap do |schema|
+          schema.class_eval(self.class.hash_to_dsl_string(traverse_hash))
+        end
+      end
+
+      def traverse_hash # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         data = elements.each_with_object({}) do |(name, element), value|
           options = element.output_options.dup
           method_name = options.delete(:type)

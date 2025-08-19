@@ -1,5 +1,11 @@
+# rubocop:disable Layout/LineLength
+# rubocop:disable Metrics/BlockLength
+# frozen_string_literal: true
+
 class FormObject < EasyForm::Base
-  def build
+  attr_accessor :helpers
+
+  def build # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     element :birthdate do
       input(type: :text, class: "form-control")
       output(type: :date, presence: true)
@@ -27,15 +33,15 @@ class FormObject < EasyForm::Base
     end
   end
 
+  def render_element(element)
+    div(class: "col-md-6") do
+      super
+    end
+  end
+
   def view_template
     div(class: "row") do
-      form(method: "post", action: "/") do
-        each_element do |element|
-          div(class: "col-md-6") do
-            render_element(element)
-          end
-        end
-      end
+      render_form
     end
   end
 end
@@ -70,61 +76,83 @@ class Info
     ]
     @car = Car.new(1)
   end
+
+  def persisted?
+    false
+  end
+end
+
+class ViewHelpers
+  def url_for(options)
+    "/#{options[:action]}"
+  end
+
+  def form_authenticity_token
+    "XD2kMuxmzYBT2emHESuqFrxJKlwKZnJPmQsL9zBxby2BtSqUzQPVNMJfF_3bbG9UksL2Gevrt803ZEBGnRixTg"
+  end
 end
 
 RSpec.describe "FormObject" do
+  let(:expected_html) do
+    '<div class="row">' \
+      '<form method="post" action="/create" accept-charset="UTF-8">' \
+        '<input name="authenticity_token" type="hidden" value="XD2kMuxmzYBT2emHESuqFrxJKlwKZnJPmQsL9zBxby2BtSqUzQPVNMJfF_3bbG9UksL2Gevrt803ZEBGnRixTg">' \
+        '<input name="_method" type="hidden" value="post">' \
+        '<div class="col-md-6">' \
+          '<label for="info_birthdate">Birthdate</label>' \
+          '<input type="text" class="form-control" name="info[birthdate]" id="info_birthdate" value="1990-01-01">' \
+        "</div>" \
+        '<div class="col-md-6">' \
+        '<label for="info_biography">Biography</label>' \
+          '<input name="info[biography]" type="hidden" value="0" autocomplete="off">' \
+          '<input type="checkbox" name="info[biography]" id="info_biography" value="1">' \
+        "</div>" \
+        '<div class="col-md-6">' \
+          '<label for="info_car_attributes_maker_id">Maker</label>' \
+          '<label for="info_car_attributes_maker_id">Toyota</label>' \
+          '<input type="radio" class="form-control" name="info[car_attributes][maker_id]" id="info_car_attributes_maker_id" value="1" checked>' \
+          '<label for="info_car_attributes_maker_id">Ford</label>' \
+          '<input type="radio" class="form-control" name="info[car_attributes][maker_id]" id="info_car_attributes_maker_id" value="2">' \
+          '<label for="info_car_attributes_maker_id">Chevrolet</label>' \
+          '<input type="radio" class="form-control" name="info[car_attributes][maker_id]" id="info_car_attributes_maker_id" value="3">' \
+        "</div>" \
+        '<div class="col-md-6">' \
+          '<label for="info_pets_attributes_0_id">Id</label>' \
+          '<select multiple class="form-control" name="info[pets_attributes][0][id]" id="info_pets_attributes_0_id">' \
+          '<option value="1" selected>Fido</option>' \
+          '<option value="2">Buddy</option>' \
+          '<option value="3">Max</option>' \
+          '<option value="4">Bella</option>' \
+          '<option value="5">Luna</option>' \
+          "</select>" \
+        "</div>" \
+        '<div class="col-md-6">' \
+          '<label for="info_pets_attributes_1_id">Id</label>' \
+          '<select multiple class="form-control" name="info[pets_attributes][1][id]" id="info_pets_attributes_1_id">' \
+          '<option value="1">Fido</option>' \
+          '<option value="2" selected>Buddy</option>' \
+          '<option value="3">Max</option>' \
+          '<option value="4">Bella</option>' \
+          '<option value="5">Luna</option>' \
+          "</select>" \
+        "</div>" \
+        '<input name="commit" type="submit" value="Create Info">' \
+      "</form>" \
+    "</div>"
+  end
   it "renders a form with nested elements" do
-    form = FormObject.new(name: :info, object: Info.new)
+    form = FormObject.new(scope: :info, model: Info.new)
+    form.helpers = ViewHelpers.new
     html = form.call
-    expect(html).to eq(
-      '<div class="row">' \
-        '<form method="post" action="/">' \
-          '<div class="col-md-6">' \
-            '<label for="info_birthdate">Birthdate</label>' \
-            '<input type="text" class="form-control" name="info[birthdate]" id="info_birthdate" value="1990-01-01">' \
-          "</div>" \
-          '<div class="col-md-6">' \
-          '<label for="info_biography">Biography</label>' \
-            '<input name="info[biography]" type="hidden" value="0" autocomplete="off">' \
-            '<input type="checkbox" name="info[biography]" id="info_biography" value="1">' \
-          "</div>" \
-          '<div class="col-md-6">' \
-            '<label for="info_car_attributes_maker_id">Maker</label>' \
-            '<label for="info_car_attributes_maker_id">Toyota</label>' \
-            '<input type="radio" class="form-control" name="info[car_attributes][maker_id]" id="info_car_attributes_maker_id" value="1" checked>' \
-            '<label for="info_car_attributes_maker_id">Ford</label>' \
-            '<input type="radio" class="form-control" name="info[car_attributes][maker_id]" id="info_car_attributes_maker_id" value="2">' \
-            '<label for="info_car_attributes_maker_id">Chevrolet</label>' \
-            '<input type="radio" class="form-control" name="info[car_attributes][maker_id]" id="info_car_attributes_maker_id" value="3">' \
-          "</div>" \
-          '<div class="col-md-6">' \
-            '<label for="info_pets_attributes_0_id">Id</label>' \
-            '<select multiple class="form-control" name="info[pets_attributes][0][id]" id="info_pets_attributes_0_id">' \
-            '<option value="1" selected>Fido</option>' \
-            '<option value="2">Buddy</option>' \
-            '<option value="3">Max</option>' \
-            '<option value="4">Bella</option>' \
-            '<option value="5">Luna</option>' \
-            "</select>" \
-          "</div>" \
-          '<div class="col-md-6">' \
-            '<label for="info_pets_attributes_1_id">Id</label>' \
-            '<select multiple class="form-control" name="info[pets_attributes][1][id]" id="info_pets_attributes_1_id">' \
-            '<option value="1">Fido</option>' \
-            '<option value="2" selected>Buddy</option>' \
-            '<option value="3">Max</option>' \
-            '<option value="4">Bella</option>' \
-            '<option value="5">Luna</option>' \
-            "</select>" \
-          "</div>" \
-        "</form>" \
-      "</div>"
-    )
-    schema = form.schema.new(birthdate: "1990-01-01", biography: true, pets_attributes: [{ id: 1 }, { id: 2 }],
-                             car_attributes: { maker_id: 1 })
+    expect(html).to eq(expected_html)
+
+    schema = form.schema_definition.new(birthdate: "1990-01-01", biography: true, pets_attributes: [{ id: 1 }, { id: 2 }],
+                                        car_attributes: { maker_id: 1 })
     expect(schema.birthdate).to eq(Date.parse("1990-01-01"))
     expect(schema.biography).to eq(true)
     expect(schema.pets_attributes.map(&:id)).to eq([1, 2])
     expect(schema.car_attributes.maker_id).to eq("1")
   end
 end
+
+# rubocop:enable Metrics/BlockLength, Layout/LineLength

@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module EasyForm
+  # Represents a form element with input/output configuration and HTML attributes
   class Element
     attr_reader :name, :input_options, :output_options, :value, :html_name, :html_id, :label, :select_options
 
@@ -38,14 +41,6 @@ module EasyForm
 
     def options(collection)
       @select_options = collection
-    end
-
-    def markup(&block)
-      if block
-        @markup_block = block
-      else
-        @markup_block
-      end
     end
 
     def html_attributes

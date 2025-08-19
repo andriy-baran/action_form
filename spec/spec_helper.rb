@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "easy_form"
-require "active_support/core_ext/string/filters"
 require "pry"
 
 RSpec.configure do |config|
