@@ -14,10 +14,23 @@ module EasyForm
     end
 
     class << self
-      attr_reader :label, :input_options, :output_options, :select_options
+      def label_options
+        @label_options ||= [{ text: nil }, {}]
+      end
 
-      def input(type:, label: nil, **options)
-        @label = label
+      def select_options
+        @select_options ||= []
+      end
+
+      def output_options
+        @output_options ||= {}
+      end
+
+      def input_options
+        @input_options ||= {}
+      end
+
+      def input(type:, **options)
         @input_options = { type: type }.merge(options)
       end
 
@@ -28,6 +41,18 @@ module EasyForm
       def options(collection)
         @select_options = collection
       end
+
+      def label(text: nil, **html_options)
+        @label_options = [{ text: text }, html_options]
+      end
+    end
+
+    def label_text
+      self.class.label_options.first[:text] || name.to_s.tr("_", " ").capitalize
+    end
+
+    def label_html_attributes
+      { for: html_id }.merge(self.class.label_options.last)
     end
 
     def html_value
@@ -48,11 +73,7 @@ module EasyForm
       end
     end
 
-    def label
-      self.class.label || name.to_s.humanize
-    end
-
-    def html_attributes
+    def input_html_attributes
       attrs = self.class.input_options.dup
       attrs.delete(:type) unless input_tag?
       attrs[:name] ||= html_name

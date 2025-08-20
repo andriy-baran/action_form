@@ -65,6 +65,12 @@ module EasyForm
       collection.each(&block)
     end
 
+    def view_template
+      render_form do
+        render_elements
+      end
+    end
+
     private
 
     def build_many_forms(name, form_definition, value)

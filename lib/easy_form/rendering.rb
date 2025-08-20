@@ -8,23 +8,29 @@ module EasyForm
     end
 
     def render_element(element)
-      label(for: element.html_id) { element.label } if element.label
-      if %i[checkbox radio select textarea].include?(element.class.input_options[:type].to_sym)
-        public_send("render_#{element.class.input_options[:type]}", element)
-      else
-        render_input(element)
-      end
+      render_label(element)
+      render_input(element)
+    end
+
+    def render_label(element)
+      return if hide_label?(element)
+
+      label(**element.label_html_attributes) { element.label_text }
     end
 
     def render_input(element)
-      input(**element.html_attributes)
+      if %i[checkbox radio select textarea].include?(element.class.input_options[:type].to_sym)
+        public_send("render_#{element.class.input_options[:type]}", element)
+      else
+        input(**element.input_html_attributes)
+      end
     end
 
     def render_checkbox(element) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-      if element.class.select_options
+      if element.class.select_options.any?
         element.class.select_options.each do |value, label_text|
           checkbox_id = "#{element.html_id}_#{value}"
-          checkbox_attrs = element.html_attributes.merge(
+          checkbox_attrs = element.input_html_attributes.merge(
             value: value,
             id: checkbox_id,
             name: "#{element.html_name}[]",
@@ -32,23 +38,23 @@ module EasyForm
           )
 
           input(**checkbox_attrs)
-          label(for: checkbox_id) { label_text }
+          label(**element.label_html_attributes.merge(for: checkbox_id)) { label_text }
         end
       else
         input(name: element.html_name, type: "hidden", value: "0", autocomplete: "off")
-        input(**element.html_attributes.merge(type: "checkbox", value: "1"))
+        input(**element.input_html_attributes.merge(type: "checkbox", value: "1"))
       end
     end
 
     def render_radio(element)
       element.class.select_options.each do |value, label_text|
-        label(for: element.html_id) { label_text }
-        input(**element.html_attributes.merge(type: "radio", value: value, checked: value == element.value))
+        label(**element.label_html_attributes) { label_text }
+        input(**element.input_html_attributes.merge(type: "radio", value: value, checked: value == element.value))
       end
     end
 
     def render_select(element)
-      select(**element.html_attributes) do
+      select(**element.input_html_attributes) do
         element.class.select_options.each do |value, label_text|
           selected = if element.class.input_options[:multiple]
                        Array(element.value).include?(value)
@@ -61,14 +67,13 @@ module EasyForm
     end
 
     def render_textarea(element)
-      textarea(**element.html_attributes) { element.value }
+      textarea(**element.input_html_attributes) { element.value }
     end
 
     def render_form(&block)
       form(**{ method: html_method, action: html_action, "accept-charset" => "UTF-8" }.merge(@html_options)) do
         render_authenticity_token if respond_to?(:helpers)
-        render_method_field
-        render_elements
+        render_method_input
         yield if block
         render_submit
       end
@@ -78,7 +83,7 @@ module EasyForm
       input(name: "authenticity_token", type: "hidden", value: helpers.form_authenticity_token)
     end
 
-    def render_method_field
+    def render_method_input
       input(name: "_method", type: "hidden", value: http_method)
     end
 
@@ -110,6 +115,14 @@ module EasyForm
 
     def default_action
       respond_to?(:helpers) ? helpers.url_for(action: resource_action) : "/"
+    end
+
+    def hide_label?(element)
+      label_options = element.class.label_options
+      return false if label_options.nil?
+
+      input_type = element.class.input_options[:type].to_sym
+      input_type == :hidden || (%i[checkbox radio].include?(input_type) && element.class.select_options.any?)
     end
   end
 end

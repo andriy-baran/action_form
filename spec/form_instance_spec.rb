@@ -56,14 +56,16 @@ class FormObject < EasyForm::Base
   end
 
   element :biography do
-    input(type: :checkbox, label: "Biography")
+    input(type: :checkbox)
+    label(text: "Biography", class: "form-label")
     output(type: :bool, presence: true)
   end
 
   element :interests do
-    input(type: :checkbox, label: "Interests")
+    input(type: :checkbox)
     output(type: :array, of: :integer, presence: true)
     options(INTERESTS.map(&:to_a))
+    label(class: "form-label")
   end
 
   has_one :car do
@@ -79,6 +81,7 @@ class FormObject < EasyForm::Base
       input(type: :select, multiple: true, class: "form-control")
       output(type: :integer, presence: true)
       options(PETS.map(&:to_a))
+      label(text: "Pets", class: "form-label")
     end
   end
 
@@ -90,7 +93,7 @@ class FormObject < EasyForm::Base
 
   def view_template
     div(class: "row") do
-      render_form
+      super
     end
   end
 end
@@ -116,23 +119,21 @@ RSpec.describe "FormObject" do
           '<input type="text" class="form-control" name="info[birthdate]" id="info_birthdate" value="1990-01-01">' \
         "</div>" \
         '<div class="col-md-6">' \
-        '<label for="info_biography">Biography</label>' \
+        '<label for="info_biography" class="form-label">Biography</label>' \
           '<input name="info[biography]" type="hidden" value="0" autocomplete="off">' \
           '<input type="checkbox" name="info[biography]" id="info_biography" value="1">' \
         "</div>" \
         '<div class="col-md-6">' \
-          '<label for="info_interests">Interests</label>' \
           '<input type="checkbox" name="info[interests][]" id="info_interests_1" value="1" checked>' \
-          '<label for="info_interests_1">Science</label>' \
+          '<label for="info_interests_1" class="form-label">Science</label>' \
           '<input type="checkbox" name="info[interests][]" id="info_interests_2" value="2">' \
-          '<label for="info_interests_2">Technology</label>' \
+          '<label for="info_interests_2" class="form-label">Technology</label>' \
           '<input type="checkbox" name="info[interests][]" id="info_interests_3" value="3" checked>' \
-          '<label for="info_interests_3">Engineering</label>' \
+          '<label for="info_interests_3" class="form-label">Engineering</label>' \
           '<input type="checkbox" name="info[interests][]" id="info_interests_4" value="4">' \
-          '<label for="info_interests_4">Math</label>' \
+          '<label for="info_interests_4" class="form-label">Math</label>' \
         "</div>" \
         '<div class="col-md-6">' \
-          '<label for="info_car_attributes_maker_id">Maker</label>' \
           '<label for="info_car_attributes_maker_id">Toyota</label>' \
           '<input type="radio" class="form-control" name="info[car_attributes][maker_id]" id="info_car_attributes_maker_id" value="1" checked>' \
           '<label for="info_car_attributes_maker_id">Ford</label>' \
@@ -141,7 +142,7 @@ RSpec.describe "FormObject" do
           '<input type="radio" class="form-control" name="info[car_attributes][maker_id]" id="info_car_attributes_maker_id" value="3">' \
         "</div>" \
         '<div class="col-md-6">' \
-          '<label for="info_pets_attributes_0_id">Id</label>' \
+          '<label for="info_pets_attributes_0_id" class="form-label">Pets</label>' \
           '<select multiple class="form-control" name="info[pets_attributes][0][id]" id="info_pets_attributes_0_id">' \
           '<option value="1" selected>Fido</option>' \
           '<option value="2">Buddy</option>' \
@@ -151,7 +152,7 @@ RSpec.describe "FormObject" do
           "</select>" \
         "</div>" \
         '<div class="col-md-6">' \
-          '<label for="info_pets_attributes_1_id">Id</label>' \
+          '<label for="info_pets_attributes_1_id" class="form-label">Pets</label>' \
           '<select multiple class="form-control" name="info[pets_attributes][1][id]" id="info_pets_attributes_1_id">' \
           '<option value="1">Fido</option>' \
           '<option value="2" selected>Buddy</option>' \
