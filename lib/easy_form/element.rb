@@ -36,7 +36,7 @@ module EasyForm
       elsif !input_tag?
         nil
       else
-        value
+        value.to_s
       end
     end
 
