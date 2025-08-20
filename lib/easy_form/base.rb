@@ -69,6 +69,7 @@ module EasyForm
     def view_template
       render_form do
         render_elements
+        render_submit
       end
     end
 

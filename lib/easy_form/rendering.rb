@@ -75,7 +75,6 @@ module EasyForm
         render_authenticity_token if respond_to?(:helpers)
         render_method_input
         yield if block
-        render_submit
       end
     end
 

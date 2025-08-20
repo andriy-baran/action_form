@@ -15,7 +15,7 @@ module EasyForm
 
     class << self
       def label_options
-        @label_options ||= [{ text: nil }, {}]
+        @label_options ||= [{ text: nil, display: true }, {}]
       end
 
       def select_options
@@ -42,8 +42,8 @@ module EasyForm
         @select_options = collection
       end
 
-      def label(text: nil, **html_options)
-        @label_options = [{ text: text }, html_options]
+      def label(text: nil, display: true, **html_options)
+        @label_options = [{ text: text, display: display }, html_options]
       end
     end
 
