@@ -97,29 +97,8 @@ module EasyForm
       "#{resource_action.to_s.capitalize} #{model_name}"
     end
 
-    def resource_action
-      @model.persisted? ? :update : :create
-    end
-
-    def http_method
-      html_options[:method] ||= @model.persisted? ? "patch" : "post"
-    end
-
-    def html_action
-      html_options[:action] ||= default_action
-    end
-
-    def html_method
-      html_options[:method] = html_options[:method].to_s.downcase == "get" ? "get" : "post"
-    end
-
-    def default_action
-      respond_to?(:helpers) ? helpers.url_for(action: resource_action) : "/"
-    end
-
     def hide_label?(element)
-      label_options = element.class.label_options
-      return false if label_options.nil?
+      return true unless element.class.label_options.first[:display]
 
       input_type = element.class.input_options[:type].to_sym
       input_type == :hidden || (%i[checkbox radio].include?(input_type) && element.class.select_options.any?)

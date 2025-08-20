@@ -11,7 +11,8 @@ module EasyForm
 
     def initialize(model: nil, scope: nil, **html_options)
       super()
-      @model = model
+      @namespaced_model = model
+      @model = model.is_a?(Array) ? Array(model).last : model
       @scope = scope || param_key
       @html_options = html_options
       @elements_instances = []
@@ -91,6 +92,22 @@ module EasyForm
 
     def param_key
       model_name.param_key
+    end
+
+    def resource_action
+      @model.persisted? ? :update : :create
+    end
+
+    def http_method
+      html_options[:method] ||= @model.persisted? ? "patch" : "post"
+    end
+
+    def html_action
+      html_options[:action] ||= helpers.polymorphic_path(@namespaced_model)
+    end
+
+    def html_method
+      html_options[:method] = html_options[:method].to_s.downcase == "get" ? "get" : "post"
     end
   end
 end

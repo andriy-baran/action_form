@@ -99,8 +99,8 @@ class FormObject < EasyForm::Base
 end
 
 class ViewHelpers
-  def url_for(options)
-    "/#{options[:action]}"
+  def polymorphic_path(_options)
+    "/create"
   end
 
   def form_authenticity_token
