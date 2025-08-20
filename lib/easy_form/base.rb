@@ -73,6 +73,15 @@ module EasyForm
       end
     end
 
+    def render_in(view_context)
+      @_view_context = view_context
+      view_context.render html: call.html_safe
+    end
+
+    def helpers
+      @_view_context
+    end
+
     private
 
     def build_many_forms(name, form_definition, value)

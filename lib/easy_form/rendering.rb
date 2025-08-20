@@ -72,7 +72,7 @@ module EasyForm
 
     def render_form(&block)
       form(**{ method: html_method, action: html_action, "accept-charset" => "UTF-8" }.merge(@html_options)) do
-        render_authenticity_token if respond_to?(:helpers)
+        render_authenticity_token
         render_method_input
         yield if block
       end
