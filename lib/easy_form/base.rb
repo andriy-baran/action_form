@@ -112,7 +112,7 @@ module EasyForm
     end
 
     def http_method
-      html_options[:method] ||= @model.persisted? ? "patch" : "post"
+      @model.persisted? ? "patch" : "post"
     end
 
     def html_action
