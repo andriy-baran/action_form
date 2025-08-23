@@ -18,10 +18,10 @@ module EasyForm
             # [['0', { "id" => "1" }], ['1', { "id" => "2" }]]
             # we need to normalize it to an array of hashes:
             # [ { "id" => "1" }, { "id" => "2" } ]
-            schema.public_send(:each, :"#{name}_attributes", element_definition.first.schema_definition,
-                               normalize: ->(value) { value.flatten.select { |v| v.is_a?(Hash) } })
+            schema.each(:"#{name}_attributes", element_definition.first.schema_definition,
+                        normalize: ->(value) { value.flatten.select { |v| v.is_a?(Hash) } })
           elsif element_definition < EasyForm::Subform
-            schema.public_send(:has, :"#{name}_attributes", element_definition.schema_definition)
+            schema.has(:"#{name}_attributes", element_definition.schema_definition)
           elsif element_definition < EasyForm::Element
             options = element_definition.output_options.dup
             method_name = options.delete(:type)

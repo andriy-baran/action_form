@@ -38,18 +38,18 @@ module EasyForm
           )
 
           input(**checkbox_attrs)
-          label(**element.label_html_attributes.merge(for: checkbox_id)) { label_text }
+          label(**element.label_html_attributes, for: checkbox_id) { label_text }
         end
       else
         input(name: element.html_name, type: "hidden", value: "0", autocomplete: "off")
-        input(**element.input_html_attributes.merge(type: "checkbox", value: "1"))
+        input(**element.input_html_attributes, type: "checkbox", value: "1")
       end
     end
 
     def render_radio(element)
       element.class.select_options.each do |value, label_text|
         label(**element.label_html_attributes) { label_text }
-        input(**element.input_html_attributes.merge(type: "radio", value: value, checked: value == element.value))
+        input(**element.input_html_attributes, type: "radio", value: value, checked: value == element.value)
       end
     end
 
@@ -85,7 +85,7 @@ module EasyForm
 
     def render_form(&block)
       render_error_messages
-      form(**{ method: html_method, action: html_action, "accept-charset" => "UTF-8" }.merge(@html_options)) do
+      form(**{ method: html_method, action: html_action, "accept-charset" => "UTF-8" }, **@html_options) do
         render_utf8_input
         render_authenticity_token
         render_method_input
@@ -106,7 +106,7 @@ module EasyForm
     end
 
     def render_submit(**html_attributes)
-      input(**{ name: "commit", type: "submit", value: submit_value }.merge(html_attributes))
+      input(name: "commit", type: "submit", value: submit_value, **html_attributes)
     end
 
     private
