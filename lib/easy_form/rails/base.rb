@@ -44,16 +44,16 @@ module EasyForm
 
       private
 
-      def build_many_forms(name, form_definition, value)
-        Array(value).each.with_index do |item, index|
-          html_name = @scope ? "#{@scope}[#{name}_attributes][#{index}]" : "[#{name}_attributes][#{index}]"
-          build_form(html_name, form_definition, item)
+      def subform_html_name(name, index: nil)
+        if index
+          @scope ? "#{@scope}[#{name}_attributes][#{index}]" : "[#{name}_attributes][#{index}]"
+        else
+          @scope ? "#{@scope}[#{name}_attributes]" : "#{name}_attributes"
         end
       end
 
-      def build_one_form(name, form_definition, value)
-        html_name = @scope ? "#{@scope}[#{name}_attributes]" : "#{name}_attributes"
-        build_form(html_name, form_definition, value)
+      def subform_value(name)
+        @object.public_send(@object.is_a?(EasyForm::Subform) ? "#{name}_attributes" : name)
       end
 
       def model_name

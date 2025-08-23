@@ -21,11 +21,10 @@ module EasyForm
 
     def build_from_object
       self.class.elements.each do |name, element_definition|
-        value = @object.public_send(@object.is_a?(EasyForm::Subform) ? "#{name}_attributes" : name)
         if element_definition.is_a?(Array)
-          build_many_forms(name, element_definition.first, value)
+          build_many_subforms(name, element_definition.first)
         elsif element_definition < EasyForm::Subform
-          build_one_form(name, element_definition, value)
+          build_subform(name, element_definition)
         elsif element_definition < EasyForm::Element
           @elements_instances << element_definition.new(name, @object, parent_name: @scope)
         end
@@ -45,19 +44,26 @@ module EasyForm
 
     private
 
-    def build_many_forms(name, form_definition, value)
-      Array(value).each.with_index do |item, index|
-        html_name = @scope ? "#{@scope}[#{name}_attributes][#{index}]" : "[#{name}_attributes][#{index}]"
-        build_form(html_name, form_definition, item)
+    def build_many_subforms(name, form_definition)
+      Array(subform_value(name)).each.with_index do |item, index|
+        build_subform(name, form_definition, value: item, index: index)
       end
     end
 
-    def build_one_form(name, form_definition, value)
-      html_name = @scope ? "#{@scope}[#{name}_attributes]" : "#{name}_attributes"
-      build_form(html_name, form_definition, value)
+    def subform_html_name(name, index: nil)
+      if index
+        @scope ? "#{@scope}[#{name}][#{index}]" : "[#{name}][#{index}]"
+      else
+        @scope ? "#{@scope}[#{name}]" : name
+      end
     end
 
-    def build_form(html_name, form_definition, value)
+    def subform_value(name)
+      @object.public_send(name)
+    end
+
+    def build_subform(name, form_definition, value: subform_value(name), index: nil)
+      html_name = subform_html_name(name, index: index)
       form_instance = form_definition.new(scope: html_name, model: value)
       @elements_instances.concat(form_instance.elements_instances)
     end
