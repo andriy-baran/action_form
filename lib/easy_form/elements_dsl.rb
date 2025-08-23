@@ -1,12 +1,23 @@
 # frozen_string_literal: true
 
 module EasyForm
+  # Provides a DSL for defining form elements with input and output configurations.
+  # This module allows form classes to define elements using a simple block syntax.
+  # Elements can be configured with input types, output formats, labels and other options.
+  #
+  # @example
+  #   class UserForm < EasyForm::Base
+  #     element :name do
+  #       input type: :text
+  #       label text: "Full Name"
+  #     end
+  #   end
   module ElementsDSL
     def self.included(base)
       base.extend(ClassMethods)
     end
 
-    module ClassMethods
+    module ClassMethods # rubocop:disable Style/Documentation
       def elements
         @elements ||= {}
       end

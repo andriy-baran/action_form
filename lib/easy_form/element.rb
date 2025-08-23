@@ -3,12 +3,11 @@
 module EasyForm
   # Represents a form element with input/output configuration and HTML attributes
   class Element
-    attr_reader :name, :input_options, :output_options, :html_name, :html_id, :select_options
-    attr_accessor :value
+    attr_reader :name, :input_options, :output_options, :html_name, :html_id, :select_options, :object
 
-    def initialize(name, value, parent_name: nil)
+    def initialize(name, object, parent_name: nil)
       @name = name
-      @value = value
+      @object = object
       @html_name = parent_name ? "#{parent_name}[#{name}]" : name
       @html_id = parent_name.to_s.split(/\[|\]/).reject(&:blank?).push(name).compact.join("_")
     end
@@ -81,6 +80,14 @@ module EasyForm
       attrs[:value] ||= html_value
       attrs[:checked] ||= html_checked
       attrs
+    end
+
+    def value
+      object.public_send(name)
+    end
+
+    def render?
+      true
     end
 
     private

@@ -47,7 +47,7 @@ module EasyForm
         elsif element_definition < EasyForm::Subform
           build_one_form(name, element_definition, value)
         elsif element_definition < EasyForm::Element
-          @elements_instances << element_definition.new(name, value, parent_name: @scope)
+          @elements_instances << element_definition.new(name, @model, parent_name: @scope)
         end
       end
     end
@@ -77,16 +77,6 @@ module EasyForm
     def build_many_forms(name, form_definition, value)
       Array(value).each.with_index do |item, index|
         html_name = @scope ? "#{@scope}[#{name}_attributes][#{index}]" : "[#{name}_attributes][#{index}]"
-        if item.class.respond_to?(:primary_key)
-          if item.persisted?
-            form_definition.element item.class.primary_key.to_sym do
-              input(type: :hidden, autocomplete: :off)
-              output(type: :integer)
-            end
-          else
-            form_definition.elements.delete(item.class.primary_key.to_sym)
-          end
-        end
         form_instance = form_definition.new(scope: html_name, model: item)
         @elements_instances.concat(form_instance.elements_instances)
       end
