@@ -10,6 +10,7 @@ require_relative "easy_form/subform"
 require_relative "easy_form/element"
 require_relative "easy_form/base"
 require_relative "easy_form/rails/rendering"
+require_relative "easy_form/rails/subform"
 require_relative "easy_form/rails/base"
 
 module EasyForm

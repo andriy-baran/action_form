@@ -2,8 +2,24 @@
 # rubocop:disable Metrics/BlockLength
 # frozen_string_literal: true
 
-Pet = Struct.new(:id, :name)
-Car = Struct.new(:maker_id)
+Pet = Struct.new(:id, :name) do
+  def self.primary_key
+    :id
+  end
+
+  def persisted?
+    true
+  end
+end
+Car = Struct.new(:id, :maker_id) do
+  def self.primary_key
+    :id
+  end
+
+  def persisted?
+    true
+  end
+end
 Maker = Struct.new(:id, :name)
 Interest = Struct.new(:id, :name)
 
@@ -38,7 +54,7 @@ class Info
       Pet.new(1, "Fido"),
       Pet.new(2, "Buddy")
     ]
-    @car = Car.new(1)
+    @car = Car.new(10, 1)
     @interests = [1, 3] # Science and Engineering
   end
 
@@ -143,6 +159,9 @@ RSpec.describe "FormObject" do
           '<input type="radio" class="form-control" name="info[car_attributes][maker_id]" id="info_car_attributes_maker_id" value="3">' \
         "</div>" \
         '<div class="col-md-6">' \
+          '<input type="hidden" autocomplete="off" name="info[car_attributes][id]" id="info_car_attributes_id" value="10">' \
+        "</div>" \
+        '<div class="col-md-6">' \
           '<label for="info_pets_attributes_0_id" class="form-label">Pets</label>' \
           '<select multiple class="form-control" name="info[pets_attributes][0][id]" id="info_pets_attributes_0_id">' \
           '<option value="1" selected>Fido</option>' \
@@ -171,9 +190,8 @@ RSpec.describe "FormObject" do
     form.helpers = ViewHelpers.new
     html = form.call
     expect(html).to eq(expected_html)
-
     schema = form.class.schema_definition.new(birthdate: "1990-01-01", biography: true, interests: [1, 3], pets_attributes: [{ id: 1 }, { id: 2 }],
-                                              car_attributes: { maker_id: 1 })
+                                              car_attributes: { id: 10, maker_id: 1 })
     expect(schema.birthdate).to eq(Date.parse("1990-01-01"))
     expect(schema.biography).to eq(true)
     expect(schema.interests.to_a).to eq([1, 3])

@@ -10,6 +10,10 @@ module EasyForm
 
     attr_reader :elements_instances
 
+    def self.concrete_elements
+      elements.reject { |_, element| element.abstract? }
+    end
+
     def initialize(scope: nil, model: nil)
       @scope = scope
       @object = model
@@ -18,23 +22,8 @@ module EasyForm
     end
 
     def build_from_object
-      self.class.elements.each do |name, element_definition|
+      self.class.concrete_elements.each do |name, element_definition|
         @elements_instances << element_definition.new(name, @object, parent_name: @scope)
-      end
-    end
-
-    private
-
-    def build_primary_key_element
-      return unless @object.class.respond_to?(:primary_key)
-
-      self.class.element @object.class.primary_key.to_sym do
-        input(type: :hidden, autocomplete: :off)
-        output(type: :integer)
-
-        def render?
-          object.persisted?
-        end
       end
     end
   end

@@ -10,6 +10,10 @@ module EasyForm
     class Base < EasyForm::Base
       include EasyForm::Rails::Rendering
 
+      def self.subform_class
+        EasyForm::Rails::Subform
+      end
+
       def initialize(model: nil, scope: self.class.scope, errors: [], **html_options)
         @errors = errors
         @namespaced_model = model
@@ -20,6 +24,16 @@ module EasyForm
 
       class << self
         attr_accessor :scope
+
+        def has_many(name, &block) # rubocop:disable Naming/PredicatePrefix
+          super
+          elements[name].last.add_primary_key_element
+        end
+
+        def has_one(name, &block) # rubocop:disable Naming/PredicatePrefix
+          super
+          elements[name].add_primary_key_element
+        end
       end
 
       def each_element(&block)

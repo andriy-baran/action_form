@@ -2,7 +2,10 @@
 
 module EasyForm
   module Rails
-    # Provides methods for rendering form elements and forms
+    # Rendering module for EasyForm Rails integration that provides form rendering functionality.
+    # Handles rendering of forms with error messages, authenticity tokens, UTF-8 encoding,
+    # and other Rails-specific form requirements. Also provides helper methods for rendering
+    # submit buttons and form elements.
     module Rendering
       def render_error_messages
         return unless errors.any?

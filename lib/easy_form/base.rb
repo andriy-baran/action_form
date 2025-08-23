@@ -10,6 +10,10 @@ module EasyForm
 
     attr_reader :elements_instances, :scope, :object, :html_options, :errors
 
+    def self.subform_class
+      EasyForm::Subform
+    end
+
     def initialize(object: nil, scope: nil, **html_options)
       super()
       @object = object
