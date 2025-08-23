@@ -3,19 +3,11 @@
 # frozen_string_literal: true
 
 Pet = Struct.new(:id, :name) do
-  def self.primary_key
-    :id
-  end
-
   def persisted?
     true
   end
 end
 Car = Struct.new(:id, :maker_id) do
-  def self.primary_key
-    :id
-  end
-
   def persisted?
     true
   end
@@ -197,6 +189,7 @@ RSpec.describe "FormObject" do
     expect(schema.interests.to_a).to eq([1, 3])
     expect(schema.pets_attributes.map(&:id)).to eq([1, 2])
     expect(schema.car_attributes.maker_id).to eq("1")
+    expect(schema.car_attributes.to_h).to eq(id: 10, maker_id: "1")
   end
 end
 

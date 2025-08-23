@@ -13,10 +13,6 @@ module EasyForm
     end
 
     class << self
-      def abstract?
-        false
-      end
-
       def label_options
         @label_options ||= [{ text: nil, display: true }, {}]
       end
