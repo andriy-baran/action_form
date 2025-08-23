@@ -35,7 +35,7 @@ module EasyForm
       end
     end
 
-    def each_element(&block)
+    def each_renderable_element(&block)
       elements_instances.select(&:render?).each(&block)
     end
 

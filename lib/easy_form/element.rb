@@ -55,7 +55,7 @@ module EasyForm
     end
 
     def html_value
-      if self.class.input_options[:type].to_sym == :checkbox
+      if input_type == :checkbox
         value ? "1" : "0"
       elsif !input_tag?
         nil
@@ -65,9 +65,9 @@ module EasyForm
     end
 
     def html_checked
-      if self.class.input_options[:type].to_sym == :checkbox
+      if input_type == :checkbox
         value
-      elsif self.class.input_options[:type].to_sym == :radio
+      elsif input_type == :radio
         value == html_value
       end
     end
@@ -90,10 +90,14 @@ module EasyForm
       true
     end
 
+    def input_type
+      self.class.input_options[:type].to_sym
+    end
+
     private
 
     def input_tag?
-      !%i[select textarea].include?(self.class.input_options[:type].to_sym)
+      !%i[select textarea].include?(input_type)
     end
   end
 end

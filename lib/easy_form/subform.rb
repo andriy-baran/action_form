@@ -10,10 +10,6 @@ module EasyForm
 
     attr_reader :elements_instances
 
-    def self.concrete_elements
-      elements.reject { |_, element| element.abstract? }
-    end
-
     def initialize(scope: nil, model: nil)
       @scope = scope
       @object = model
@@ -22,7 +18,7 @@ module EasyForm
     end
 
     def build_from_object
-      self.class.concrete_elements.each do |name, element_definition|
+      self.class.elements.each do |name, element_definition|
         @elements_instances << element_definition.new(name, @object, parent_name: @scope)
       end
     end

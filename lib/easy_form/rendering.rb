@@ -4,7 +4,13 @@ module EasyForm
   # Provides methods for rendering form elements and forms
   module Rendering
     def render_elements
-      each_element(&method(:render_element))
+      each_renderable_element do |element|
+        if element.input_type == :hidden
+          input(**element.input_html_attributes)
+        else
+          render_element(element)
+        end
+      end
     end
 
     def render_element(element)
@@ -19,8 +25,8 @@ module EasyForm
     end
 
     def render_input(element)
-      if %i[checkbox radio select textarea].include?(element.class.input_options[:type].to_sym)
-        public_send("render_#{element.class.input_options[:type]}", element)
+      if %i[checkbox radio select textarea].include?(element.input_type)
+        public_send("render_#{element.input_type}", element)
       else
         input(**element.input_html_attributes)
       end
@@ -85,8 +91,8 @@ module EasyForm
     def hide_label?(element)
       return true unless element.class.label_options.first[:display]
 
-      input_type = element.class.input_options[:type].to_sym
-      input_type == :hidden || (%i[checkbox radio].include?(input_type) && element.class.select_options.any?)
+      element.input_type == :hidden ||
+        (%i[checkbox radio].include?(element.input_type) && element.class.select_options.any?)
     end
   end
 end

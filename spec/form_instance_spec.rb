@@ -93,8 +93,14 @@ class FormObject < EasyForm::Rails::Base
     end
   end
 
-  def render_element(element)
-    div(class: "col-md-6") do
+  def render_input(element)
+    div(class: "col-md-9") do
+      super
+    end
+  end
+
+  def render_label(element)
+    div(class: "col-md-3") do
       super
     end
   end
@@ -123,16 +129,22 @@ RSpec.describe "FormObject" do
         '<input name="utf8" type="hidden" value="✓" autocomplete="off">' \
         '<input name="authenticity_token" type="hidden" value="XD2kMuxmzYBT2emHESuqFrxJKlwKZnJPmQsL9zBxby2BtSqUzQPVNMJfF_3bbG9UksL2Gevrt803ZEBGnRixTg">' \
         '<input name="_method" type="hidden" value="post" autocomplete="off">' \
-        '<div class="col-md-6">' \
+        '<div class="col-md-3">' \
           '<label for="info_birthdate">Birthdate</label>' \
+        "</div>" \
+        '<div class="col-md-9">' \
           '<input type="text" class="form-control" name="info[birthdate]" id="info_birthdate" value="1990-01-01">' \
         "</div>" \
-        '<div class="col-md-6">' \
-        '<label for="info_biography" class="form-label">Biography</label>' \
+        '<div class="col-md-3">' \
+          '<label for="info_biography" class="form-label">Biography</label>' \
+        "</div>" \
+        '<div class="col-md-9">' \
           '<input name="info[biography]" type="hidden" value="0" autocomplete="off">' \
           '<input type="checkbox" name="info[biography]" id="info_biography" value="1">' \
         "</div>" \
-        '<div class="col-md-6">' \
+        '<div class="col-md-3">' \
+        "</div>" \
+        '<div class="col-md-9">' \
           '<input type="checkbox" name="info[interests][]" id="info_interests_1" value="1" checked>' \
           '<label for="info_interests_1" class="form-label">Science</label>' \
           '<input type="checkbox" name="info[interests][]" id="info_interests_2" value="2">' \
@@ -142,7 +154,9 @@ RSpec.describe "FormObject" do
           '<input type="checkbox" name="info[interests][]" id="info_interests_4" value="4">' \
           '<label for="info_interests_4" class="form-label">Math</label>' \
         "</div>" \
-        '<div class="col-md-6">' \
+        '<div class="col-md-3">' \
+        "</div>" \
+        '<div class="col-md-9">' \
           '<label for="info_car_attributes_maker_id">Toyota</label>' \
           '<input type="radio" class="form-control" name="info[car_attributes][maker_id]" id="info_car_attributes_maker_id" value="1" checked>' \
           '<label for="info_car_attributes_maker_id">Ford</label>' \
@@ -150,11 +164,11 @@ RSpec.describe "FormObject" do
           '<label for="info_car_attributes_maker_id">Chevrolet</label>' \
           '<input type="radio" class="form-control" name="info[car_attributes][maker_id]" id="info_car_attributes_maker_id" value="3">' \
         "</div>" \
-        '<div class="col-md-6">' \
-          '<input type="hidden" autocomplete="off" name="info[car_attributes][id]" id="info_car_attributes_id" value="10">' \
-        "</div>" \
-        '<div class="col-md-6">' \
+        '<input type="hidden" autocomplete="off" name="info[car_attributes][id]" id="info_car_attributes_id" value="10">' \
+        '<div class="col-md-3">' \
           '<label for="info_pets_attributes_0_id" class="form-label">Pets</label>' \
+        "</div>" \
+        '<div class="col-md-9">' \
           '<select multiple class="form-control" name="info[pets_attributes][0][id]" id="info_pets_attributes_0_id">' \
           '<option value="1" selected>Fido</option>' \
           '<option value="2">Buddy</option>' \
@@ -163,8 +177,10 @@ RSpec.describe "FormObject" do
           '<option value="5">Luna</option>' \
           "</select>" \
         "</div>" \
-        '<div class="col-md-6">' \
+        '<div class="col-md-3">' \
           '<label for="info_pets_attributes_1_id" class="form-label">Pets</label>' \
+        "</div>" \
+        '<div class="col-md-9">' \
           '<select multiple class="form-control" name="info[pets_attributes][1][id]" id="info_pets_attributes_1_id">' \
           '<option value="1">Fido</option>' \
           '<option value="2" selected>Buddy</option>' \
