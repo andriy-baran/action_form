@@ -86,6 +86,7 @@ module EasyForm
     def render_form(&block)
       render_error_messages
       form(**{ method: html_method, action: html_action, "accept-charset" => "UTF-8" }.merge(@html_options)) do
+        render_utf8_input
         render_authenticity_token
         render_method_input
         yield if block
@@ -97,7 +98,11 @@ module EasyForm
     end
 
     def render_method_input
-      input(name: "_method", type: "hidden", value: http_method)
+      input(name: "_method", type: "hidden", value: http_method, autocomplete: "off")
+    end
+
+    def render_utf8_input
+      input(name: "utf8", type: "hidden", value: "✓", autocomplete: "off")
     end
 
     def render_submit(**html_attributes)
