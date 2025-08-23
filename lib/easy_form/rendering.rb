@@ -70,7 +70,21 @@ module EasyForm
       textarea(**element.input_html_attributes) { element.value }
     end
 
+    def render_error_messages
+      return unless errors.any?
+
+      h2 do
+        "#{helpers.pluralize(errors.count, "error")} prohibited this #{model_name.human.downcase} from being saved:"
+      end
+      ul do
+        errors.full_messages.each do |message|
+          li { message }
+        end
+      end
+    end
+
     def render_form(&block)
+      render_error_messages
       form(**{ method: html_method, action: html_action, "accept-charset" => "UTF-8" }.merge(@html_options)) do
         render_authenticity_token
         render_method_input

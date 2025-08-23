@@ -7,9 +7,9 @@ module EasyForm
     include EasyForm::SchemaDSL
     include EasyForm::Rendering
 
-    attr_reader :elements_instances, :forms_instances, :scope, :model, :html_options
+    attr_reader :elements_instances, :forms_instances, :scope, :model, :html_options, :errors
 
-    def initialize(model: nil, scope: nil, **html_options)
+    def initialize(model: nil, scope: self.class.scope, errors: [], **html_options)
       super()
       @namespaced_model = model
       @model = model.is_a?(Array) ? Array(model).last : model
@@ -18,9 +18,12 @@ module EasyForm
       @elements_instances = []
       @forms_instances = []
       build_from_model
+      @errors = errors
     end
 
     class << self
+      attr_accessor :scope
+
       def elements
         @elements ||= {}
       end
