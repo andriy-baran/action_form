@@ -5,9 +5,10 @@ module EasyForm
   # and integrates with Phlex for HTML rendering.
   class Base < ::Phlex::HTML
     include EasyForm::SchemaDSL
+    include EasyForm::ElementsDSL
     include EasyForm::Rendering
 
-    attr_reader :elements_instances, :forms_instances, :scope, :model, :html_options, :errors
+    attr_reader :elements_instances, :scope, :model, :html_options, :errors
 
     def initialize(model: nil, scope: self.class.scope, errors: [], **html_options)
       super()
@@ -16,7 +17,6 @@ module EasyForm
       @scope = scope || param_key
       @html_options = html_options
       @elements_instances = []
-      @forms_instances = []
       build_from_model
       @errors = errors
     end
@@ -24,49 +24,36 @@ module EasyForm
     class << self
       attr_accessor :scope
 
-      def elements
-        @elements ||= {}
-      end
-
       def forms
         @forms ||= {}
       end
 
-      # TODO: add support for outputless elements
-      def element(name, &block)
-        elements[name] = Class.new(EasyForm::Element)
-        elements[name].class_eval(&block)
-      end
-
       def has_many(name, &block) # rubocop:disable Naming/PredicatePrefix
-        forms[name] = [Class.new(EasyForm::Base)]
-        forms[name].last.class_eval(&block)
+        elements[name] = [Class.new(EasyForm::Subform)]
+        elements[name].last.class_eval(&block)
       end
 
       def has_one(name, &block) # rubocop:disable Naming/PredicatePrefix
-        forms[name] = Class.new(EasyForm::Base)
-        forms[name].class_eval(&block)
+        elements[name] = Class.new(EasyForm::Subform)
+        elements[name].class_eval(&block)
       end
     end
 
-    def build_from_model # rubocop:disable Metrics/MethodLength
-      self.class.forms.each do |name, form_definition|
-        value = @model.public_send(name)
-        if form_definition.is_a?(Array)
-          build_many_forms(name, form_definition.first, value)
-        else
-          build_one_form(name, form_definition, value)
-        end
-      end
+    def build_from_model
       self.class.elements.each do |name, element_definition|
-        value = @model.public_send(name)
-        @elements_instances << element_definition.new(name, value, parent_name: @scope)
+        value = @model.public_send(@model.is_a?(EasyForm::Subform) ? "#{name}_attributes" : name)
+        if element_definition.is_a?(Array)
+          build_many_forms(name, element_definition.first, value)
+        elsif element_definition < EasyForm::Subform
+          build_one_form(name, element_definition, value)
+        elsif element_definition < EasyForm::Element
+          @elements_instances << element_definition.new(name, value, parent_name: @scope)
+        end
       end
     end
 
     def each_element(&block)
-      collection = [elements_instances, forms_instances.map(&:elements_instances)].flatten
-      collection.each(&block)
+      elements_instances.each(&block)
     end
 
     def view_template
@@ -90,13 +77,25 @@ module EasyForm
     def build_many_forms(name, form_definition, value)
       Array(value).each.with_index do |item, index|
         html_name = @scope ? "#{@scope}[#{name}_attributes][#{index}]" : "[#{name}_attributes][#{index}]"
-        @forms_instances << form_definition.new(scope: html_name, model: item)
+        if item.class.respond_to?(:primary_key)
+          if item.persisted?
+            form_definition.element item.class.primary_key.to_sym do
+              input(type: :hidden, autocomplete: :off)
+              output(type: :integer)
+            end
+          else
+            form_definition.elements.delete(item.class.primary_key.to_sym)
+          end
+        end
+        form_instance = form_definition.new(scope: html_name, model: item)
+        @elements_instances.concat(form_instance.elements_instances)
       end
     end
 
     def build_one_form(name, form_definition, value)
       html_name = @scope ? "#{@scope}[#{name}_attributes]" : "#{name}_attributes"
-      @forms_instances << form_definition.new(scope: html_name, model: value)
+      form_instance = form_definition.new(scope: html_name, model: value)
+      @elements_instances.concat(form_instance.elements_instances)
     end
 
     def model_name

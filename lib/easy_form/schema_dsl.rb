@@ -10,24 +10,23 @@ module EasyForm
     module ClassMethods # rubocop:disable Style/Documentation
       def schema_definition # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         schema = Class.new(EasyParams::Base)
-        forms.each do |name, form_definition|
-          if form_definition.is_a?(Array)
+        elements.each do |name, element_definition|
+          if element_definition.is_a?(Array)
             # nested forms are passed as a hash that looks like this:
             # { "0" => { "id" => "1" }, "1" => { "id" => "2" } }
             # it is coercing to an array of hashes:
             # [['0', { "id" => "1" }], ['1', { "id" => "2" }]]
             # we need to normalize it to an array of hashes:
             # [ { "id" => "1" }, { "id" => "2" } ]
-            schema.public_send(:each, :"#{name}_attributes", form_definition.first.schema_definition,
+            schema.public_send(:each, :"#{name}_attributes", element_definition.first.schema_definition,
                                normalize: ->(value) { value.flatten.select { |v| v.is_a?(Hash) } })
-          else
-            schema.public_send(:has, :"#{name}_attributes", form_definition.schema_definition)
+          elsif element_definition < EasyForm::Subform
+            schema.public_send(:has, :"#{name}_attributes", element_definition.schema_definition)
+          elsif element_definition < EasyForm::Element
+            options = element_definition.output_options.dup
+            method_name = options.delete(:type)
+            schema.public_send(method_name, name, **options)
           end
-        end
-        elements.each do |name, element_definition|
-          options = element_definition.output_options.dup
-          method_name = options.delete(:type)
-          schema.public_send(method_name, name, **options)
         end
         schema
       end
