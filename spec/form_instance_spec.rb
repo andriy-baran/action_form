@@ -47,7 +47,7 @@ class Info
   end
 end
 
-class FormObject < EasyForm::Base
+class FormObject < EasyForm::Rails::Base
   attr_accessor :helpers
 
   element :birthdate do

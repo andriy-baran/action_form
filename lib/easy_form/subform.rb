@@ -12,23 +12,23 @@ module EasyForm
 
     def initialize(scope: nil, model: nil)
       @scope = scope
-      @model = model
+      @object = model
       @elements_instances = []
-      build_from_model
+      build_from_object
     end
 
-    def build_from_model
+    def build_from_object
       self.class.elements.each do |name, element_definition|
-        @elements_instances << element_definition.new(name, @model, parent_name: @scope)
+        @elements_instances << element_definition.new(name, @object, parent_name: @scope)
       end
     end
 
     private
 
     def build_primary_key_element
-      return unless @model.class.respond_to?(:primary_key)
+      return unless @object.class.respond_to?(:primary_key)
 
-      self.class.element @model.class.primary_key.to_sym do
+      self.class.element @object.class.primary_key.to_sym do
         input(type: :hidden, autocomplete: :off)
         output(type: :integer)
 

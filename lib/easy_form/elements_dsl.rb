@@ -27,6 +27,16 @@ module EasyForm
         elements[name] = Class.new(EasyForm::Element)
         elements[name].class_eval(&block)
       end
+
+      def has_many(name, &block) # rubocop:disable Naming/PredicatePrefix
+        elements[name] = [Class.new(EasyForm::Subform)]
+        elements[name].last.class_eval(&block)
+      end
+
+      def has_one(name, &block) # rubocop:disable Naming/PredicatePrefix
+        elements[name] = Class.new(EasyForm::Subform)
+        elements[name].class_eval(&block)
+      end
     end
   end
 end
