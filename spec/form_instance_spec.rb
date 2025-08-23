@@ -112,8 +112,9 @@ RSpec.describe "FormObject" do
   let(:expected_html) do
     '<div class="row">' \
       '<form method="post" action="/create" accept-charset="UTF-8">' \
+        '<input name="utf8" type="hidden" value="✓" autocomplete="off">' \
         '<input name="authenticity_token" type="hidden" value="XD2kMuxmzYBT2emHESuqFrxJKlwKZnJPmQsL9zBxby2BtSqUzQPVNMJfF_3bbG9UksL2Gevrt803ZEBGnRixTg">' \
-        '<input name="_method" type="hidden" value="post">' \
+        '<input name="_method" type="hidden" value="post" autocomplete="off">' \
         '<div class="col-md-6">' \
           '<label for="info_birthdate">Birthdate</label>' \
           '<input type="text" class="form-control" name="info[birthdate]" id="info_birthdate" value="1990-01-01">' \
