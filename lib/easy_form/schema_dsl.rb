@@ -12,7 +12,14 @@ module EasyForm
         schema = Class.new(EasyParams::Base)
         forms.each do |name, form_definition|
           if form_definition.is_a?(Array)
-            schema.public_send(:each, :"#{name}_attributes", form_definition.first.schema_definition)
+            # nested forms are passed as a hash that looks like this:
+            # { "0" => { "id" => "1" }, "1" => { "id" => "2" } }
+            # it is coercing to an array of hashes:
+            # [['0', { "id" => "1" }], ['1', { "id" => "2" }]]
+            # we need to normalize it to an array of hashes:
+            # [ { "id" => "1" }, { "id" => "2" } ]
+            schema.public_send(:each, :"#{name}_attributes", form_definition.first.schema_definition,
+                               normalize: ->(value) { value.flatten.select { |v| v.is_a?(Hash) } })
           else
             schema.public_send(:has, :"#{name}_attributes", form_definition.schema_definition)
           end
