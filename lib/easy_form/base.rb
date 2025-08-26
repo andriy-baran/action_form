@@ -30,7 +30,7 @@ module EasyForm
         elsif element_definition < EasyForm::Subform
           build_subform(name, element_definition)
         elsif element_definition < EasyForm::Element
-          @elements_instances << element_definition.new(name, @object, parent_name: @scope)
+          @elements_instances << element_definition.new(name, @params || @object, parent_name: @scope)
         end
       end
     end

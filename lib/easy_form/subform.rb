@@ -10,16 +10,17 @@ module EasyForm
 
     attr_reader :elements_instances
 
-    def initialize(scope: nil, model: nil)
+    def initialize(scope: nil, model: nil, params: nil)
       @scope = scope
       @object = model
+      @params = params
       @elements_instances = []
       build_from_object
     end
 
     def build_from_object
       self.class.elements.each do |name, element_definition|
-        @elements_instances << element_definition.new(name, @object, parent_name: @scope)
+        @elements_instances << element_definition.new(name, @params || @object, parent_name: @scope)
       end
     end
   end

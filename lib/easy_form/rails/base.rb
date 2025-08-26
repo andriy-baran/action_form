@@ -14,16 +14,42 @@ module EasyForm
         EasyForm::Rails::Subform
       end
 
-      def initialize(model: nil, scope: self.class.scope, errors: [], **html_options)
-        @errors = errors
+      def initialize(model: nil, scope: self.class.scope, params: nil, **html_options)
+        @errors = params&.errors || []
         @namespaced_model = model
         @object = model.is_a?(Array) ? Array(model).last : model
+        if self.class.resource_model && !@object.is_a?(self.class.resource_model)
+          raise "Model must be an instance of #{self.class.resource_model}"
+        end
+
         @scope = scope || param_key
+        @params = params.respond_to?(@scope) ? params.public_send(@scope) : params
         super(object: @object, scope: @scope, **html_options)
       end
 
       class << self
-        attr_accessor :scope
+        def resource_model(model = nil)
+          return @resource_model unless model
+
+          @resource_model = model
+          @scope = model.model_name.param_key.to_sym
+        end
+
+        def scope(scope = nil)
+          return @scope unless scope
+
+          @scope = scope
+        end
+
+        def params_definition(scope: self.scope)
+          @params_definitions ||= Hash.new do |h, key|
+            h[key] = begin
+              klass = super
+              Class.new(params_class) { has scope, klass }
+            end
+          end
+          @params_definitions[scope]
+        end
 
         def has_many(name, &block) # rubocop:disable Naming/PredicatePrefix
           super
@@ -56,6 +82,10 @@ module EasyForm
         @_view_context
       end
 
+      def with_errors(form_params)
+        self.class.new(model: @namespaced_model, scope: @scope, params: form_params, **html_options)
+      end
+
       private
 
       def subform_html_name(name, index: nil)
@@ -67,15 +97,19 @@ module EasyForm
       end
 
       def subform_value(name)
-        @object.public_send(@object.is_a?(EasyForm::Subform) ? "#{name}_attributes" : name)
+        if @params
+          @params.send("#{name}_attributes")
+        else
+          @object.public_send(name)
+        end
       end
 
       def model_name
-        @object.respond_to?(:model_name) ? @object.model_name : ActiveModel::Name.new(@object.class)
+        @object.model_name
       end
 
       def param_key
-        model_name.param_key
+        model_name.param_key.to_sym
       end
 
       def resource_action

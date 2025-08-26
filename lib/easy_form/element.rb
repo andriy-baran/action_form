@@ -60,7 +60,7 @@ module EasyForm
       elsif !input_tag?
         nil
       else
-        value.to_s
+        object.is_a?(EasyParams::Base) ? object.public_send(name) : value.to_s
       end
     end
 
