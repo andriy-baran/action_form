@@ -21,7 +21,7 @@ module EasyForm
       end
 
       def render_form(&block)
-        render_error_messages
+        # render_error_messages
         form(**{ method: html_method, action: html_action, "accept-charset" => "UTF-8" }, **@html_options) do
           render_utf8_input
           render_authenticity_token

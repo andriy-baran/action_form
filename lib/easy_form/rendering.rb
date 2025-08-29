@@ -8,7 +8,7 @@ module EasyForm
         if element.input_type == :hidden
           input(**element.input_html_attributes)
         else
-          render_element(element)
+          element.errors_messages.any? ? render_element_with_errors(element) : render_element(element)
         end
       end
     end
@@ -18,10 +18,20 @@ module EasyForm
       render_input(element)
     end
 
+    def render_element_with_errors(element)
+      render_label(element)
+      render_input_with_errors(element)
+    end
+
     def render_label(element)
       return if hide_label?(element)
 
       label(**element.label_html_attributes) { element.label_text }
+    end
+
+    def render_input_with_errors(element)
+      render_input(element)
+      render_errors(element)
     end
 
     def render_input(element)
@@ -76,10 +86,18 @@ module EasyForm
       textarea(**element.input_html_attributes) { element.value }
     end
 
+    def render_errors(element)
+      div(class: "error-messages") { element.errors_messages.join(", ") }
+    end
+
     def render_form(&block)
       form(**@html_options) do
         yield if block
       end
+    end
+
+    def render_validated_form(&block)
+      render_form(&block)
     end
 
     def render_submit(**html_attributes)

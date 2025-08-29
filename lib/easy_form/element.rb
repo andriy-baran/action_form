@@ -3,7 +3,7 @@
 module EasyForm
   # Represents a form element with input/output configuration and HTML attributes
   class Element
-    attr_reader :name, :input_options, :output_options, :html_name, :html_id, :select_options, :object
+    attr_reader :name, :input_options, :output_options, :html_name, :html_id, :select_options
 
     def initialize(name, object, parent_name: nil)
       @name = name
@@ -82,6 +82,10 @@ module EasyForm
       attrs
     end
 
+    def errors_messages
+      (object.is_a?(EasyParams::Base) && object.errors[name]) || []
+    end
+
     def value
       object.public_send(name)
     end
@@ -95,6 +99,8 @@ module EasyForm
     end
 
     private
+
+    attr_reader :object
 
     def input_tag?
       !%i[select textarea].include?(input_type)

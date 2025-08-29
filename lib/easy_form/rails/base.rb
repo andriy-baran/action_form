@@ -15,13 +15,13 @@ module EasyForm
       end
 
       def initialize(model: nil, scope: self.class.scope, params: nil, **html_options)
-        @errors = params&.errors || []
         @namespaced_model = model
         @object = model.is_a?(Array) ? Array(model).last : model
         if self.class.resource_model && !@object.is_a?(self.class.resource_model)
           raise "Model must be an instance of #{self.class.resource_model}"
         end
 
+        @errors = params&.errors || []
         @scope = scope || param_key
         @params = params.respond_to?(@scope) ? params.public_send(@scope) : params
         super(object: @object, scope: @scope, **html_options)
@@ -67,9 +67,16 @@ module EasyForm
       end
 
       def view_template
-        render_form do
-          render_elements
-          render_submit
+        if @errors.any?
+          render_validated_form do
+            render_elements
+            render_submit
+          end
+        else
+          render_form do
+            render_elements
+            render_submit
+          end
         end
       end
 
