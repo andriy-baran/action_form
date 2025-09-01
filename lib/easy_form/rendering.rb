@@ -35,56 +35,7 @@ module EasyForm
     end
 
     def render_input(element, **html_attributes)
-      if %i[checkbox radio select textarea].include?(element.input_type)
-        public_send("render_#{element.input_type}", element, **html_attributes)
-      else
-        input(**element.input_html_attributes, **html_attributes)
-      end
-    end
-
-    def render_checkbox(element, **html_attributes) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-      if element.class.select_options.any?
-        element.class.select_options.each do |value, label_text|
-          checkbox_id = "#{element.html_id}_#{value}"
-          checkbox_attrs = element.input_html_attributes.merge(
-            value: value,
-            id: checkbox_id,
-            name: "#{element.html_name}[]",
-            checked: Array(element.value).include?(value)
-          )
-
-          input(**checkbox_attrs, **html_attributes)
-          label(**element.label_html_attributes, for: checkbox_id) { label_text }
-        end
-      else
-        input(name: element.html_name, type: "hidden", value: "0", autocomplete: "off")
-        input(**element.input_html_attributes, type: "checkbox", value: "1", **html_attributes)
-      end
-    end
-
-    def render_radio(element, **html_attributes)
-      element.class.select_options.each do |value, label_text|
-        label(**element.label_html_attributes) { label_text }
-        input(**element.input_html_attributes, **html_attributes, type: "radio", value: value,
-                                                                  checked: value == element.value)
-      end
-    end
-
-    def render_select(element, **html_attributes)
-      select(**element.input_html_attributes, **html_attributes) do
-        element.class.select_options.each do |value, label_text|
-          selected = if element.class.input_options[:multiple]
-                       Array(element.value).include?(value)
-                     else
-                       value == element.value
-                     end
-          option(value: value, selected: selected) { label_text }
-        end
-      end
-    end
-
-    def render_textarea(element, **html_attributes)
-      textarea(**element.input_html_attributes, **html_attributes) { element.value }
+      render Input.new(element, **html_attributes)
     end
 
     def render_errors(element)
