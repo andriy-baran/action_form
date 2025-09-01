@@ -34,15 +34,15 @@ module EasyForm
       render_errors(element)
     end
 
-    def render_input(element)
+    def render_input(element, **html_attributes)
       if %i[checkbox radio select textarea].include?(element.input_type)
-        public_send("render_#{element.input_type}", element)
+        public_send("render_#{element.input_type}", element, **html_attributes)
       else
-        input(**element.input_html_attributes)
+        input(**element.input_html_attributes, **html_attributes)
       end
     end
 
-    def render_checkbox(element) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+    def render_checkbox(element, **html_attributes) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
       if element.class.select_options.any?
         element.class.select_options.each do |value, label_text|
           checkbox_id = "#{element.html_id}_#{value}"
@@ -53,24 +53,25 @@ module EasyForm
             checked: Array(element.value).include?(value)
           )
 
-          input(**checkbox_attrs)
+          input(**checkbox_attrs, **html_attributes)
           label(**element.label_html_attributes, for: checkbox_id) { label_text }
         end
       else
         input(name: element.html_name, type: "hidden", value: "0", autocomplete: "off")
-        input(**element.input_html_attributes, type: "checkbox", value: "1")
+        input(**element.input_html_attributes, type: "checkbox", value: "1", **html_attributes)
       end
     end
 
-    def render_radio(element)
+    def render_radio(element, **html_attributes)
       element.class.select_options.each do |value, label_text|
         label(**element.label_html_attributes) { label_text }
-        input(**element.input_html_attributes, type: "radio", value: value, checked: value == element.value)
+        input(**element.input_html_attributes, **html_attributes, type: "radio", value: value,
+                                                                  checked: value == element.value)
       end
     end
 
-    def render_select(element)
-      select(**element.input_html_attributes) do
+    def render_select(element, **html_attributes)
+      select(**element.input_html_attributes, **html_attributes) do
         element.class.select_options.each do |value, label_text|
           selected = if element.class.input_options[:multiple]
                        Array(element.value).include?(value)
@@ -82,18 +83,16 @@ module EasyForm
       end
     end
 
-    def render_textarea(element)
-      textarea(**element.input_html_attributes) { element.value }
+    def render_textarea(element, **html_attributes)
+      textarea(**element.input_html_attributes, **html_attributes) { element.value }
     end
 
     def render_errors(element)
       div(class: "error-messages") { element.errors_messages.join(", ") }
     end
 
-    def render_form(&block)
-      form(**@html_options) do
-        yield if block
-      end
+    def render_form(**html_attributes, &block)
+      form(**@html_options, **html_attributes, &block)
     end
 
     def render_validated_form(&block)
