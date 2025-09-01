@@ -15,7 +15,7 @@ module EasyForm
       if %i[checkbox radio select textarea].include?(element.input_type)
         send("render_#{element.input_type}")
       else
-        input(**element.input_html_attributes, **html_attributes)
+        input(**mix(element.input_html_attributes, html_attributes))
       end
     end
 
@@ -32,25 +32,25 @@ module EasyForm
             checked: Array(element.value).include?(value)
           )
 
-          input(**checkbox_attrs, **html_attributes)
+          input(**mix(checkbox_attrs, html_attributes))
           label(**element.label_html_attributes, for: checkbox_id) { label_text }
         end
       else
         input(name: element.html_name, type: "hidden", value: "0", autocomplete: "off")
-        input(**element.input_html_attributes, type: "checkbox", value: "1", **html_attributes)
+        input(**mix(element.input_html_attributes, html_attributes), type: "checkbox", value: "1")
       end
     end
 
     def render_radio
       element.class.select_options.each do |value, label_text|
         label(**element.label_html_attributes) { label_text }
-        input(**element.input_html_attributes, **html_attributes, type: "radio", value: value,
-                                                                  checked: value == element.value)
+        input(**mix(element.input_html_attributes, html_attributes), type: "radio", value: value,
+                                                                     checked: value == element.value)
       end
     end
 
     def render_select
-      select(**element.input_html_attributes, **html_attributes) do
+      select(**mix(element.input_html_attributes, html_attributes)) do
         element.class.select_options.each do |value, label_text|
           selected = if element.class.input_options[:multiple]
                        Array(element.value).include?(value)
@@ -63,7 +63,7 @@ module EasyForm
     end
 
     def render_textarea
-      textarea(**element.input_html_attributes, **html_attributes) { element.value }
+      textarea(**mix(element.input_html_attributes, html_attributes)) { element.value }
     end
   end
 end
