@@ -26,9 +26,9 @@ module EasyForm
     def build_from_object
       self.class.elements.each do |name, element_definition|
         if element_definition.is_a?(Array)
-          build_many_subforms(name, element_definition.first)
+          @elements_instances << build_many_subforms(name, element_definition.first)
         elsif element_definition < EasyForm::Subform
-          build_subform(name, element_definition)
+          @elements_instances << build_subform(name, element_definition)
         elsif element_definition < EasyForm::Element
           @elements_instances << element_definition.new(name, @params || @object, parent_name: @scope)
         end
@@ -49,8 +49,10 @@ module EasyForm
     private
 
     def build_many_subforms(name, form_definition)
-      Array(subform_value(name)).each.with_index do |item, index|
-        build_subform(name, form_definition, value: item, index: index)
+      SubformCollection.new do
+        Array(subform_value(name)).map.with_index do |item, index|
+          build_subform(name, form_definition, value: item, index: index)
+        end
       end
     end
 
@@ -69,7 +71,10 @@ module EasyForm
     def build_subform(name, form_definition, value: subform_value(name), index: nil)
       html_name = subform_html_name(name, index: index)
       form_instance = form_definition.new(scope: html_name, model: value)
-      @elements_instances.concat(form_instance.elements_instances)
+      form_instance.each_element do |element|
+        element.tags.merge!(subform: index ? :"#{name}_#{index}" : name)
+      end
+      form_instance
     end
   end
 end

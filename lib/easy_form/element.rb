@@ -3,13 +3,16 @@
 module EasyForm
   # Represents a form element with input/output configuration and HTML attributes
   class Element
-    attr_reader :name, :input_options, :output_options, :html_name, :html_id, :select_options
+    attr_reader :name, :input_options, :output_options, :html_name, :html_id, :select_options, :tags, :errors_messages
 
     def initialize(name, object, parent_name: nil)
       @name = name
       @object = object
       @html_name = parent_name ? "#{parent_name}[#{name}]" : name
       @html_id = parent_name.to_s.split(/\[|\]/).reject(&:blank?).push(name).compact.join("_")
+      @tags = self.class.tags_list.dup
+      @errors_messages = (object.respond_to?(:errors) && object&.errors&.messages_for(name)) || []
+      tags.merge!(errors: errors_messages.any?)
     end
 
     class << self
@@ -29,20 +32,31 @@ module EasyForm
         @input_options ||= {}
       end
 
+      def tags_list
+        @tags_list ||= {}
+      end
+
       def input(type:, **options)
         @input_options = { type: type }.merge(options)
+        tags_list.merge!(input: type)
       end
 
       def output(type:, **options)
         @output_options = { type: type }.merge(options)
+        tags_list.merge!(output: type)
       end
 
       def options(collection)
         @select_options = collection
+        tags_list.merge!(options: true)
       end
 
       def label(text: nil, display: true, **html_options)
         @label_options = [{ text: text, display: display }, html_options]
+      end
+
+      def tags(**tags_list)
+        tags_list.merge!(tags_list)
       end
     end
 
@@ -80,10 +94,6 @@ module EasyForm
       attrs[:value] ||= html_value
       attrs[:checked] ||= html_checked
       attrs
-    end
-
-    def errors_messages
-      (object.is_a?(EasyParams::Base) && object.errors[name]) || []
     end
 
     def value

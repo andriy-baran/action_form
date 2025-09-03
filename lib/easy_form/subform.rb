@@ -23,5 +23,13 @@ module EasyForm
         @elements_instances << element_definition.new(name, @params || @object, parent_name: @scope)
       end
     end
+
+    def each_element(&block)
+      elements_instances.each(&block)
+    end
+
+    def render?
+      true
+    end
   end
 end

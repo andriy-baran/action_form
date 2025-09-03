@@ -3,12 +3,20 @@
 module EasyForm
   # Provides methods for rendering form elements and forms
   module Rendering
-    def render_elements
-      each_renderable_element do |element|
-        if element.input_type == :hidden
+    def render_elements(elements = elements_instances)
+      elements.select(&:render?).each do |element|
+        if element.is_a?(SubformCollection)
+          render_many_subforms(element)
+        elsif element.is_a?(Subform)
+          render_subform(element)
+        elsif element.input_type == :hidden
           input(**element.input_html_attributes)
+        elsif element.errors_messages.any?
+          render_element_with_errors(element)
+        elsif element.tags[:template]
+          # NOOP
         else
-          element.errors_messages.any? ? render_element_with_errors(element) : render_element(element)
+          render_element(element)
         end
       end
     end
@@ -44,6 +52,14 @@ module EasyForm
 
     def render_form(**html_attributes, &block)
       form(**@html_options, **html_attributes, &block)
+    end
+
+    def render_subform(subform)
+      render_elements(subform.elements_instances)
+    end
+
+    def render_many_subforms(subforms)
+      subforms.each(&method(:render_subform))
     end
 
     def render_validated_form(&block)
