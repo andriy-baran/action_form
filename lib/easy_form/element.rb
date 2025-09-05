@@ -71,6 +71,8 @@ module EasyForm
     def html_value
       if input_type == :checkbox
         value ? "1" : "0"
+      elsif detached?
+        self.class.input_options[:value]
       elsif !input_tag?
         nil
       elsif object.is_a?(EasyParams::Base)
@@ -104,6 +106,10 @@ module EasyForm
 
     def render?
       true
+    end
+
+    def detached?
+      false
     end
 
     def input_type

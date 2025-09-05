@@ -19,6 +19,21 @@ module EasyForm
             end
           end
         end
+
+        def add_delete_element
+          element :_destroy do
+            input(type: :hidden, autocomplete: :off, value: "0")
+            output(type: :bool)
+
+            def render?
+              object.persisted?
+            end
+
+            def detached?
+              true
+            end
+          end
+        end
       end
     end
   end

@@ -191,6 +191,7 @@ RSpec.describe "FormObject" do
           '<option value="5">Luna</option>' \
           "</select>" \
         "</div>" \
+        '<input type="hidden" autocomplete="off" value="0" name="info[pets_attributes][0][_destroy]" id="info_pets_attributes_0__destroy">' \
         '<div class="col-md-3">' \
           '<label for="info_pets_attributes_1_id" class="form-label">Pets</label>' \
         "</div>" \
@@ -203,6 +204,21 @@ RSpec.describe "FormObject" do
           '<option value="5">Luna</option>' \
           "</select>" \
         "</div>" \
+        '<input type="hidden" autocomplete="off" value="0" name="info[pets_attributes][1][_destroy]" id="info_pets_attributes_1__destroy">' \
+        '<template id="pets_template">' \
+          '<div class="col-md-3">' \
+            '<label for="info_pets_attributes_NEW_RECORD_id" class="form-label">Pets</label>' \
+          "</div>" \
+          '<div class="col-md-9">' \
+            '<select multiple class="form-control" name="info[pets_attributes][NEW_RECORD][id]" id="info_pets_attributes_NEW_RECORD_id">' \
+            '<option value="1">Fido</option>' \
+            '<option value="2">Buddy</option>' \
+            '<option value="3">Max</option>' \
+            '<option value="4">Bella</option>' \
+            '<option value="5">Luna</option>' \
+            "</select>" \
+          "</div>" \
+        "</template>" \
         '<input name="commit" type="submit" value="Create Info">' \
       "</form>" \
     "</div>"
@@ -303,6 +319,20 @@ RSpec.describe "FormObject" do
           '<option value="5" selected>Luna</option>' \
           "</select>" \
         "</div>" \
+        '<template id="pets_template">' \
+          '<div class="col-md-3">' \
+            '<label for="info_pets_attributes_NEW_RECORD_id" class="form-label">Pets</label>' \
+          "</div>" \
+          '<div class="col-md-9">' \
+            '<select multiple class="form-control" name="info[pets_attributes][NEW_RECORD][id]" id="info_pets_attributes_NEW_RECORD_id">' \
+            '<option value="1">Fido</option>' \
+            '<option value="2">Buddy</option>' \
+            '<option value="3">Max</option>' \
+            '<option value="4">Bella</option>' \
+            '<option value="5">Luna</option>' \
+            "</select>" \
+          "</div>" \
+        "</template>" \
         '<input name="commit" type="submit" value="Create Info">' \
       "</form>" \
     "</div>"
@@ -396,6 +426,20 @@ RSpec.describe "FormObject" do
       "</select>" \
     "</div>" \
     '<div class="error-messages">can&#39;t be blank</div>' \
+    '<template id="pets_template">' \
+      '<div class="col-md-3">' \
+        '<label for="info_pets_attributes_NEW_RECORD_id" class="form-label">Pets</label>' \
+      "</div>" \
+      '<div class="col-md-9">' \
+        '<select multiple class="form-control" name="info[pets_attributes][NEW_RECORD][id]" id="info_pets_attributes_NEW_RECORD_id">' \
+        '<option value="1">Fido</option>' \
+        '<option value="2">Buddy</option>' \
+        '<option value="3">Max</option>' \
+        '<option value="4">Bella</option>' \
+        '<option value="5">Luna</option>' \
+        "</select>" \
+      "</div>" \
+    "</template>" \
     '<input name="commit" type="submit" value="Create Info">' \
   "</form>" \
 "</div>"
