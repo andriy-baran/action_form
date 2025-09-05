@@ -53,7 +53,8 @@ module EasyForm
 
         def has_many(name, &block) # rubocop:disable Naming/PredicatePrefix
           super
-          elements[name].last.add_primary_key_element
+          elements[name].subform_definition.add_primary_key_element
+          elements[name].subform_definition.add_delete_element
         end
 
         def has_one(name, &block) # rubocop:disable Naming/PredicatePrefix

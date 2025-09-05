@@ -15,14 +15,14 @@ module EasyForm
       def params_definition(*) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         schema = Class.new(params_class)
         elements.each do |name, element_definition|
-          if element_definition.is_a?(Array)
+          if element_definition < EasyForm::SubformsCollection
             # nested forms are passed as a hash that looks like this:
             # { "0" => { "id" => "1" }, "1" => { "id" => "2" } }
             # it is coercing to an array of hashes:
             # [['0', { "id" => "1" }], ['1', { "id" => "2" }]]
             # we need to normalize it to an array of hashes:
             # [ { "id" => "1" }, { "id" => "2" } ]
-            schema.each(:"#{name}_attributes", element_definition.first.params_definition,
+            schema.each(:"#{name}_attributes", element_definition.subform_definition.params_definition,
                         normalize: ->(value) { value.flatten.select { |v| v.is_a?(Hash) } })
           elsif element_definition < EasyForm::Subform
             schema.has(:"#{name}_attributes", element_definition.params_definition)

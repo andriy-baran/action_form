@@ -73,8 +73,10 @@ module EasyForm
         value ? "1" : "0"
       elsif !input_tag?
         nil
+      elsif object.is_a?(EasyParams::Base)
+        object.public_send(name)
       else
-        object.is_a?(EasyParams::Base) ? object.public_send(name) : value.to_s
+        value.to_s
       end
     end
 

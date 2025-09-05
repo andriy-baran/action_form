@@ -8,19 +8,22 @@ module EasyForm
     include EasyForm::SchemaDSL
     include EasyForm::ElementsDSL
 
-    attr_reader :elements_instances
+    attr_reader :elements_instances, :tags, :name
 
-    def initialize(scope: nil, model: nil, params: nil)
+    def initialize(name:, scope: nil, model: nil, params: nil, **tags)
+      @name = name
       @scope = scope
       @object = model
       @params = params
       @elements_instances = []
+      @tags = tags
       build_from_object
     end
 
     def build_from_object
-      self.class.elements.each do |name, element_definition|
-        @elements_instances << element_definition.new(name, @params || @object, parent_name: @scope)
+      self.class.elements.each do |element_name, element_definition|
+        @elements_instances << element_definition.new(element_name, @params || @object, parent_name: @scope)
+        @elements_instances.last.tags.merge!(subform: @name)
       end
     end
 
@@ -30,6 +33,10 @@ module EasyForm
 
     def render?
       true
+    end
+
+    def template_html_id
+      "#{name}_template"
     end
   end
 end

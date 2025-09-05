@@ -25,18 +25,15 @@ module EasyForm
 
     def build_from_object
       self.class.elements.each do |name, element_definition|
-        if element_definition.is_a?(Array)
-          @elements_instances << build_many_subforms(name, element_definition.first)
+        if element_definition < EasyForm::SubformsCollection
+          @elements_instances << build_many_subforms(name, element_definition)
+          @elements_instances.last.subforms << build_subform_template(name, element_definition.subform_definition)
         elsif element_definition < EasyForm::Subform
           @elements_instances << build_subform(name, element_definition)
         elsif element_definition < EasyForm::Element
           @elements_instances << element_definition.new(name, @params || @object, parent_name: @scope)
         end
       end
-    end
-
-    def each_renderable_element(&block)
-      elements_instances.select(&:render?).each(&block)
     end
 
     def view_template
@@ -48,10 +45,10 @@ module EasyForm
 
     private
 
-    def build_many_subforms(name, form_definition)
-      SubformCollection.new do
+    def build_many_subforms(name, collection_definition)
+      collection_definition.new(name) do
         Array(subform_value(name)).map.with_index do |item, index|
-          build_subform(name, form_definition, value: item, index: index)
+          build_subform(name, collection_definition.subform_definition, value: item, index: index)
         end
       end
     end
@@ -70,11 +67,14 @@ module EasyForm
 
     def build_subform(name, form_definition, value: subform_value(name), index: nil)
       html_name = subform_html_name(name, index: index)
-      form_instance = form_definition.new(scope: html_name, model: value)
-      form_instance.each_element do |element|
-        element.tags.merge!(subform: index ? :"#{name}_#{index}" : name)
-      end
-      form_instance
+      form_definition.new(name: name, scope: html_name, model: value)
+    end
+
+    def build_subform_template(name, form_definition)
+      html_name = subform_html_name(name, index: "NEW_RECORD")
+      elements_keys = form_definition.elements.keys.push(:persisted?)
+      value = Struct.new(*elements_keys).new
+      form_definition.new(name: name, scope: html_name, model: value, template: true)
     end
   end
 end
