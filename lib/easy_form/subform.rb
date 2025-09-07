@@ -8,7 +8,7 @@ module EasyForm
     include EasyForm::SchemaDSL
     include EasyForm::ElementsDSL
 
-    attr_reader :elements_instances, :tags, :name
+    attr_reader :elements_instances, :tags, :name, :object
 
     def initialize(name:, scope: nil, model: nil, params: nil, **tags)
       @name = name
@@ -37,6 +37,14 @@ module EasyForm
 
     def template_html_id
       "#{name}_template"
+    end
+
+    def html_id
+      "#{name}_#{tags[:index]}"
+    end
+
+    def html_class
+      "#{name}_subform"
     end
   end
 end

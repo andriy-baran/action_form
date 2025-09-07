@@ -179,44 +179,96 @@ RSpec.describe "FormObject" do
           '<input type="radio" class="form-control" name="info[car_attributes][maker_id]" id="info_car_attributes_maker_id" value="3">' \
         "</div>" \
         '<input type="hidden" autocomplete="off" name="info[car_attributes][id]" id="info_car_attributes_id" value="10">' \
-        '<div class="col-md-3">' \
-          '<label for="info_pets_attributes_0_id" class="form-label">Pets</label>' \
-        "</div>" \
-        '<div class="col-md-9">' \
-          '<select multiple class="form-control" name="info[pets_attributes][0][id]" id="info_pets_attributes_0_id">' \
-          '<option value="1" selected>Fido</option>' \
-          '<option value="2">Buddy</option>' \
-          '<option value="3">Max</option>' \
-          '<option value="4">Bella</option>' \
-          '<option value="5">Luna</option>' \
-          "</select>" \
-        "</div>" \
-        '<input type="hidden" autocomplete="off" value="0" name="info[pets_attributes][0][_destroy]" id="info_pets_attributes_0__destroy">' \
-        '<div class="col-md-3">' \
-          '<label for="info_pets_attributes_1_id" class="form-label">Pets</label>' \
-        "</div>" \
-        '<div class="col-md-9">' \
-          '<select multiple class="form-control" name="info[pets_attributes][1][id]" id="info_pets_attributes_1_id">' \
-          '<option value="1">Fido</option>' \
-          '<option value="2" selected>Buddy</option>' \
-          '<option value="3">Max</option>' \
-          '<option value="4">Bella</option>' \
-          '<option value="5">Luna</option>' \
-          "</select>" \
-        "</div>" \
-        '<input type="hidden" autocomplete="off" value="0" name="info[pets_attributes][1][_destroy]" id="info_pets_attributes_1__destroy">' \
-        '<template id="pets_template">' \
+        '<script type="text/javascript">function easyFormRemoveSubform(event) {' \
+        "\n  " \
+        "event.preventDefault()" \
+        "\n  " \
+        'var subform = event.target.closest(".new_pets")' \
+        "\n  " \
+        "if (subform) { subform.remove() }" \
+        "\n  " \
+        'var subform = event.target.closest(".pets_subform")' \
+        "\n  " \
+        "if (subform) {" \
+        "\n    " \
+        'subform.style.display = "none"' \
+        "\n    " \
+        'var input = subform.querySelector("input[name*=\'_destroy\']")' \
+        "\n    " \
+        'if (input) { input.value = "1" }' \
+        "\n  " \
+        "}" \
+        "\n" \
+        "}" \
+        "\n" \
+        "</script>" \
+        '<script type="text/javascript">function easyFormAddSubform(event) {' \
+        "\n  " \
+        "event.preventDefault()" \
+        "\n  " \
+        'var template = document.querySelector("#pets_template")' \
+        "\n  " \
+        "const content = template.innerHTML.replace(/NEW_RECORD/g, new Date().getTime().toString())" \
+        "\n  " \
+        "var beforeElement = event.target.closest(event.target.dataset.insertBeforeSelector)" \
+        "\n  " \
+        "if (beforeElement) {" \
+        "\n    " \
+        'beforeElement.insertAdjacentHTML("beforebegin", content)' \
+        "\n  " \
+        "} else {" \
+        "\n    " \
+        'event.target.parentElement.insertAdjacentHTML("beforebegin", content)' \
+        "\n  " \
+        "}" \
+        "\n" \
+        "}" \
+        "\n" \
+        "</script>" \
+        '<div id="pets_0" class="pets_subform">' \
           '<div class="col-md-3">' \
-            '<label for="info_pets_attributes_NEW_RECORD_id" class="form-label">Pets</label>' \
+            '<label for="info_pets_attributes_0_id" class="form-label">Pets</label>' \
           "</div>" \
           '<div class="col-md-9">' \
-            '<select multiple class="form-control" name="info[pets_attributes][NEW_RECORD][id]" id="info_pets_attributes_NEW_RECORD_id">' \
-            '<option value="1">Fido</option>' \
+            '<select multiple class="form-control" name="info[pets_attributes][0][id]" id="info_pets_attributes_0_id">' \
+            '<option value="1" selected>Fido</option>' \
             '<option value="2">Buddy</option>' \
             '<option value="3">Max</option>' \
             '<option value="4">Bella</option>' \
             '<option value="5">Luna</option>' \
             "</select>" \
+          "</div>" \
+          '<input type="hidden" autocomplete="off" value="0" name="info[pets_attributes][0][_destroy]" id="info_pets_attributes_0__destroy">' \
+        "</div>" \
+        '<div id="pets_1" class="pets_subform">' \
+          '<div class="col-md-3">' \
+            '<label for="info_pets_attributes_1_id" class="form-label">Pets</label>' \
+          "</div>" \
+          '<div class="col-md-9">' \
+            '<select multiple class="form-control" name="info[pets_attributes][1][id]" id="info_pets_attributes_1_id">' \
+            '<option value="1">Fido</option>' \
+            '<option value="2" selected>Buddy</option>' \
+            '<option value="3">Max</option>' \
+            '<option value="4">Bella</option>' \
+            '<option value="5">Luna</option>' \
+            "</select>" \
+          "</div>" \
+          '<input type="hidden" autocomplete="off" value="0" name="info[pets_attributes][1][_destroy]" id="info_pets_attributes_1__destroy">' \
+        "</div>" \
+        '<template id="pets_template">' \
+          '<div class="new_pets">' \
+            '<div class="col-md-3">' \
+              '<label for="info_pets_attributes_NEW_RECORD_id" class="form-label">Pets</label>' \
+            "</div>" \
+            '<div class="col-md-9">' \
+              '<select multiple class="form-control" name="info[pets_attributes][NEW_RECORD][id]" id="info_pets_attributes_NEW_RECORD_id">' \
+              '<option value="1">Fido</option>' \
+              '<option value="2">Buddy</option>' \
+              '<option value="3">Max</option>' \
+              '<option value="4">Bella</option>' \
+              '<option value="5">Luna</option>' \
+              "</select>" \
+            "</div>" \
           "</div>" \
         "</template>" \
         '<input name="commit" type="submit" value="Create Info">' \
@@ -295,42 +347,95 @@ RSpec.describe "FormObject" do
           '<label for="info_car_attributes_maker_id">Chevrolet</label>' \
           '<input type="radio" class="form-control" name="info[car_attributes][maker_id]" id="info_car_attributes_maker_id" value="3">' \
         "</div>" \
-        '<div class="col-md-3">' \
-          '<label for="info_pets_attributes_0_id" class="form-label">Pets</label>' \
-        "</div>" \
-        '<div class="col-md-9">' \
-          '<select multiple class="form-control" name="info[pets_attributes][0][id]" id="info_pets_attributes_0_id">' \
-          '<option value="1">Fido</option>' \
-          '<option value="2">Buddy</option>' \
-          '<option value="3" selected>Max</option>' \
-          '<option value="4">Bella</option>' \
-          '<option value="5">Luna</option>' \
-          "</select>" \
-        "</div>" \
-        '<div class="col-md-3">' \
-          '<label for="info_pets_attributes_1_id" class="form-label">Pets</label>' \
-        "</div>" \
-        '<div class="col-md-9">' \
-          '<select multiple class="form-control" name="info[pets_attributes][1][id]" id="info_pets_attributes_1_id">' \
-          '<option value="1">Fido</option>' \
-          '<option value="2">Buddy</option>' \
-          '<option value="3">Max</option>' \
-          '<option value="4">Bella</option>' \
-          '<option value="5" selected>Luna</option>' \
-          "</select>" \
-        "</div>" \
-        '<template id="pets_template">' \
+        '<input type="hidden" autocomplete="off" name="info[car_attributes][id]" id="info_car_attributes_id" value="15">' \
+        '<script type="text/javascript">function easyFormRemoveSubform(event) {' \
+        "\n  " \
+        "event.preventDefault()" \
+        "\n  " \
+        'var subform = event.target.closest(".new_pets")' \
+        "\n  " \
+        "if (subform) { subform.remove() }" \
+        "\n  " \
+        'var subform = event.target.closest(".pets_subform")' \
+        "\n  " \
+        "if (subform) {" \
+        "\n    " \
+        'subform.style.display = "none"' \
+        "\n    " \
+        'var input = subform.querySelector("input[name*=\'_destroy\']")' \
+        "\n    " \
+        'if (input) { input.value = "1" }' \
+        "\n  " \
+        "}" \
+        "\n" \
+        "}" \
+        "\n" \
+        "</script>" \
+        '<script type="text/javascript">function easyFormAddSubform(event) {' \
+        "\n  " \
+        "event.preventDefault()" \
+        "\n  " \
+        'var template = document.querySelector("#pets_template")' \
+        "\n  " \
+        "const content = template.innerHTML.replace(/NEW_RECORD/g, new Date().getTime().toString())" \
+        "\n  " \
+        "var beforeElement = event.target.closest(event.target.dataset.insertBeforeSelector)" \
+        "\n  " \
+        "if (beforeElement) {" \
+        "\n    " \
+        'beforeElement.insertAdjacentHTML("beforebegin", content)' \
+        "\n  " \
+        "} else {" \
+        "\n    " \
+        'event.target.parentElement.insertAdjacentHTML("beforebegin", content)' \
+        "\n  " \
+        "}" \
+        "\n" \
+        "}" \
+        "\n" \
+        "</script>" \
+        '<div id="pets_0" class="pets_subform">' \
           '<div class="col-md-3">' \
-            '<label for="info_pets_attributes_NEW_RECORD_id" class="form-label">Pets</label>' \
+            '<label for="info_pets_attributes_0_id" class="form-label">Pets</label>' \
           "</div>" \
           '<div class="col-md-9">' \
-            '<select multiple class="form-control" name="info[pets_attributes][NEW_RECORD][id]" id="info_pets_attributes_NEW_RECORD_id">' \
+            '<select multiple class="form-control" name="info[pets_attributes][0][id]" id="info_pets_attributes_0_id">' \
+            '<option value="1">Fido</option>' \
+            '<option value="2">Buddy</option>' \
+            '<option value="3" selected>Max</option>' \
+            '<option value="4">Bella</option>' \
+            '<option value="5">Luna</option>' \
+            "</select>" \
+          "</div>" \
+        "</div>" \
+        '<div id="pets_1" class="pets_subform">' \
+          '<div class="col-md-3">' \
+            '<label for="info_pets_attributes_1_id" class="form-label">Pets</label>' \
+          "</div>" \
+          '<div class="col-md-9">' \
+            '<select multiple class="form-control" name="info[pets_attributes][1][id]" id="info_pets_attributes_1_id">' \
             '<option value="1">Fido</option>' \
             '<option value="2">Buddy</option>' \
             '<option value="3">Max</option>' \
             '<option value="4">Bella</option>' \
-            '<option value="5">Luna</option>' \
+            '<option value="5" selected>Luna</option>' \
             "</select>" \
+          "</div>" \
+        "</div>" \
+        '<template id="pets_template">' \
+          '<div class="new_pets">' \
+            '<div class="col-md-3">' \
+              '<label for="info_pets_attributes_NEW_RECORD_id" class="form-label">Pets</label>' \
+            "</div>" \
+            '<div class="col-md-9">' \
+              '<select multiple class="form-control" name="info[pets_attributes][NEW_RECORD][id]" id="info_pets_attributes_NEW_RECORD_id">' \
+              '<option value="1">Fido</option>' \
+              '<option value="2">Buddy</option>' \
+              '<option value="3">Max</option>' \
+              '<option value="4">Bella</option>' \
+              '<option value="5">Luna</option>' \
+              "</select>" \
+            "</div>" \
           "</div>" \
         "</template>" \
         '<input name="commit" type="submit" value="Create Info">' \
@@ -400,44 +505,97 @@ RSpec.describe "FormObject" do
       '<input type="radio" class="form-control" name="info[car_attributes][maker_id]" id="info_car_attributes_maker_id" value="3">' \
     "</div>" \
     '<div class="error-messages">can&#39;t be blank</div>' \
-    '<div class="col-md-3">' \
-      '<label for="info_pets_attributes_0_id" class="form-label">Pets</label>' \
-    "</div>" \
-    '<div class="col-md-9">' \
-      '<select multiple class="form-control" name="info[pets_attributes][0][id]" id="info_pets_attributes_0_id">' \
-      '<option value="1">Fido</option>' \
-      '<option value="2">Buddy</option>' \
-      '<option value="3">Max</option>' \
-      '<option value="4">Bella</option>' \
-      '<option value="5">Luna</option>' \
-      "</select>" \
-    "</div>" \
-    '<div class="error-messages">can&#39;t be blank</div>' \
-    '<div class="col-md-3">' \
-      '<label for="info_pets_attributes_1_id" class="form-label">Pets</label>' \
-    "</div>" \
-    '<div class="col-md-9">' \
-      '<select multiple class="form-control" name="info[pets_attributes][1][id]" id="info_pets_attributes_1_id">' \
-      '<option value="1">Fido</option>' \
-      '<option value="2">Buddy</option>' \
-      '<option value="3">Max</option>' \
-      '<option value="4">Bella</option>' \
-      '<option value="5">Luna</option>' \
-      "</select>" \
-    "</div>" \
-    '<div class="error-messages">can&#39;t be blank</div>' \
-    '<template id="pets_template">' \
+    '<input type="hidden" autocomplete="off" name="info[car_attributes][id]" id="info_car_attributes_id" value="15">' \
+    '<script type="text/javascript">function easyFormRemoveSubform(event) {' \
+    "\n  " \
+    "event.preventDefault()" \
+    "\n  " \
+    'var subform = event.target.closest(".new_pets")' \
+    "\n  " \
+    "if (subform) { subform.remove() }" \
+    "\n  " \
+    'var subform = event.target.closest(".pets_subform")' \
+    "\n  " \
+    "if (subform) {" \
+    "\n    " \
+    'subform.style.display = "none"' \
+    "\n    " \
+    'var input = subform.querySelector("input[name*=\'_destroy\']")' \
+    "\n    " \
+    'if (input) { input.value = "1" }' \
+    "\n  " \
+    "}" \
+    "\n" \
+    "}" \
+    "\n" \
+    "</script>" \
+    '<script type="text/javascript">function easyFormAddSubform(event) {' \
+    "\n  " \
+    "event.preventDefault()" \
+    "\n  " \
+    'var template = document.querySelector("#pets_template")' \
+    "\n  " \
+    "const content = template.innerHTML.replace(/NEW_RECORD/g, new Date().getTime().toString())" \
+    "\n  " \
+    "var beforeElement = event.target.closest(event.target.dataset.insertBeforeSelector)" \
+    "\n  " \
+    "if (beforeElement) {" \
+    "\n    " \
+    'beforeElement.insertAdjacentHTML("beforebegin", content)' \
+    "\n  " \
+    "} else {" \
+    "\n    " \
+    'event.target.parentElement.insertAdjacentHTML("beforebegin", content)' \
+    "\n  " \
+    "}" \
+    "\n" \
+    "}" \
+    "\n" \
+    "</script>" \
+    '<div id="pets_0" class="new_pets">' \
       '<div class="col-md-3">' \
-        '<label for="info_pets_attributes_NEW_RECORD_id" class="form-label">Pets</label>' \
+        '<label for="info_pets_attributes_0_id" class="form-label">Pets</label>' \
       "</div>" \
       '<div class="col-md-9">' \
-        '<select multiple class="form-control" name="info[pets_attributes][NEW_RECORD][id]" id="info_pets_attributes_NEW_RECORD_id">' \
+        '<select multiple class="form-control" name="info[pets_attributes][0][id]" id="info_pets_attributes_0_id">' \
         '<option value="1">Fido</option>' \
         '<option value="2">Buddy</option>' \
         '<option value="3">Max</option>' \
         '<option value="4">Bella</option>' \
         '<option value="5">Luna</option>' \
         "</select>" \
+      "</div>" \
+      '<div class="error-messages">can&#39;t be blank</div>' \
+    "</div>" \
+    '<div id="pets_1" class="new_pets">' \
+      '<div class="col-md-3">' \
+        '<label for="info_pets_attributes_1_id" class="form-label">Pets</label>' \
+      "</div>" \
+      '<div class="col-md-9">' \
+        '<select multiple class="form-control" name="info[pets_attributes][1][id]" id="info_pets_attributes_1_id">' \
+        '<option value="1">Fido</option>' \
+        '<option value="2">Buddy</option>' \
+        '<option value="3">Max</option>' \
+        '<option value="4">Bella</option>' \
+        '<option value="5">Luna</option>' \
+        "</select>" \
+      "</div>" \
+      '<div class="error-messages">can&#39;t be blank</div>' \
+    "</div>" \
+    '<template id="pets_template">' \
+      '<div class="new_pets">' \
+        '<div class="col-md-3">' \
+          '<label for="info_pets_attributes_NEW_RECORD_id" class="form-label">Pets</label>' \
+        "</div>" \
+        '<div class="col-md-9">' \
+          '<select multiple class="form-control" name="info[pets_attributes][NEW_RECORD][id]" id="info_pets_attributes_NEW_RECORD_id">' \
+          '<option value="1">Fido</option>' \
+          '<option value="2">Buddy</option>' \
+          '<option value="3">Max</option>' \
+          '<option value="4">Bella</option>' \
+          '<option value="5">Luna</option>' \
+          "</select>" \
+        "</div>" \
       "</div>" \
     "</template>" \
     '<input name="commit" type="submit" value="Create Info">' \

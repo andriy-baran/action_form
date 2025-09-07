@@ -37,5 +37,37 @@ module EasyForm
     def template_html_id
       "#{name}_template"
     end
+
+    def add_subform_js
+      <<~JS
+        function easyFormAddSubform(event) {
+          event.preventDefault()
+          var template = document.querySelector("##{template_html_id}")
+          const content = template.innerHTML.replace(/NEW_RECORD/g, new Date().getTime().toString())
+          var beforeElement = event.target.closest(event.target.dataset.insertBeforeSelector)
+          if (beforeElement) {
+            beforeElement.insertAdjacentHTML("beforebegin", content)
+          } else {
+            event.target.parentElement.insertAdjacentHTML("beforebegin", content)
+          }
+        }
+      JS
+    end
+
+    def remove_subform_js
+      <<~JS
+        function easyFormRemoveSubform(event) {
+          event.preventDefault()
+          var subform = event.target.closest(".new_#{name}")
+          if (subform) { subform.remove() }
+          var subform = event.target.closest(".#{name}_subform")
+          if (subform) {
+            subform.style.display = "none"
+            var input = subform.querySelector("input[name*='_destroy']")
+            if (input) { input.value = "1" }
+          }
+        }
+      JS
+    end
   end
 end

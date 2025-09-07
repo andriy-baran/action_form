@@ -46,18 +46,20 @@ module EasyForm
     end
 
     def render_many_subforms(subforms)
+      script(type: "text/javascript") { raw safe(subforms.remove_subform_js) }
+      script(type: "text/javascript") { raw safe(subforms.add_subform_js) }
       subforms.each do |subform|
         if subform.tags[:template]
           render_subform_template(subform)
         else
-          render_subform(subform)
+          div(id: subform.html_id, class: subform.html_class) { render_subform(subform) }
         end
       end
     end
 
     def render_subform_template(subform)
       template(id: subform.template_html_id) do
-        render_subform(subform)
+        div(class: "new_#{subform.name}") { render_subform(subform) }
       end
     end
 
@@ -65,19 +67,11 @@ module EasyForm
       input(name: "commit", type: "submit", value: "Submit", **html_attributes)
     end
 
-    def render_remove_subform_button(subform, **html_attributes, &block)
+    def render_remove_subform_button(**html_attributes, &block)
       a(**html_attributes, onclick: safe("easyFormRemoveSubform(event)"), &block)
-      script(type: "text/javascript") do
-        raw safe(<<~JS)
-          function easyFormRemoveSubform(event) {
-            event.preventDefault()
-            event.target.parentElement.remove()
-          }
-        JS
-      end
     end
 
-    def render_new_subform_button(subforms, **html_attributes, &block)
+    def render_new_subform_button(**html_attributes, &block)
       a(**html_attributes, onclick: safe("easyFormAddSubform(event)"), &block)
     end
 

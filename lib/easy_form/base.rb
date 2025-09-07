@@ -67,7 +67,7 @@ module EasyForm
 
     def build_subform(name, form_definition, value: subform_value(name), index: nil)
       html_name = subform_html_name(name, index: index)
-      form_definition.new(name: name, scope: html_name, model: value)
+      form_definition.new(name: name, scope: html_name, model: value, index: index)
     end
 
     def build_subform_template(name, form_definition)

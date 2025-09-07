@@ -15,7 +15,7 @@ module EasyForm
             output(type: :integer)
 
             def render?
-              object.persisted?
+              object.persisted? || (object.is_a?(EasyParams::Base) && !object.id.nil?)
             end
           end
         end
@@ -26,7 +26,7 @@ module EasyForm
             output(type: :bool)
 
             def render?
-              object.persisted?
+              object.persisted? || (object.is_a?(EasyParams::Base) && !object._destroy.nil?)
             end
 
             def detached?
@@ -34,6 +34,10 @@ module EasyForm
             end
           end
         end
+      end
+
+      def html_class
+        object.is_a?(EasyParams::Base) && object.id.nil? ? "new_#{name}" : super
       end
     end
   end
