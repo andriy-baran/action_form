@@ -23,8 +23,9 @@ module EasyForm
       end
 
       def inherited(subclass)
+        super
         subclass.elements = elements.dup
-        subclass.scope = scope
+        subclass.scope = scope.dup
       end
     end
 
@@ -41,7 +42,7 @@ module EasyForm
       self.class.elements.each do |name, element_definition|
         if element_definition < EasyForm::SubformsCollection
           @elements_instances << build_many_subforms(name, element_definition)
-          @elements_instances.last.subforms << build_subform_template(name, element_definition.subform_definition)
+          @elements_instances.last << build_subform_template(name, element_definition.subform_definition)
         elsif element_definition < EasyForm::Subform
           @elements_instances << build_subform(name, element_definition)
         elsif element_definition < EasyForm::Element
@@ -69,11 +70,11 @@ module EasyForm
     private
 
     def build_many_subforms(name, collection_definition)
-      collection_definition.new(name) do
-        Array(subform_value(name)).map.with_index do |item, index|
-          build_subform(name, collection_definition.subform_definition, value: item, index: index)
-        end
+      collection = collection_definition.new(name)
+      Array(subform_value(name)).each.with_index do |item, index|
+        collection << build_subform(name, collection_definition.subform_definition, value: item, index: index)
       end
+      collection
     end
 
     def subform_html_name(name, index: nil)

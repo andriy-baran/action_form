@@ -4,7 +4,8 @@ module EasyForm
   # Subform class for EasyForm that handles nested form structures.
   # It allows building forms within forms, supporting has_one and has_many relationships.
   # Includes schema and element DSL functionality for defining form elements.
-  class Subform
+  class Subform < ::Phlex::HTML
+    include EasyForm::Rendering
     include EasyForm::SchemaDSL
     include EasyForm::ElementsDSL
 
@@ -15,6 +16,7 @@ module EasyForm
     attr_reader :elements_instances, :tags, :name, :object
 
     def initialize(name:, scope: nil, model: nil, params: nil, **tags)
+      super()
       @name = name
       @scope = scope
       @object = model
@@ -31,10 +33,6 @@ module EasyForm
       end
     end
 
-    def each_element(&block)
-      elements_instances.each(&block)
-    end
-
     def render?
       true
     end
@@ -49,6 +47,10 @@ module EasyForm
 
     def html_class
       "#{name}_subform"
+    end
+
+    def view_template
+      render_elements
     end
   end
 end

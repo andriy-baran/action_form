@@ -42,25 +42,11 @@ module EasyForm
     end
 
     def render_subform(subform)
-      render_elements(subform.elements_instances)
+      render(subform)
     end
 
     def render_many_subforms(subforms)
-      script(type: "text/javascript") { raw safe(subforms.remove_subform_js) }
-      script(type: "text/javascript") { raw safe(subforms.add_subform_js) }
-      subforms.each do |subform|
-        if subform.tags[:template]
-          render_subform_template(subform)
-        else
-          div(id: subform.html_id, class: subform.html_class) { render_subform(subform) }
-        end
-      end
-    end
-
-    def render_subform_template(subform)
-      template(id: subform.template_html_id) do
-        div(class: "new_#{subform.name}") { render_subform(subform) }
-      end
+      render(subforms)
     end
 
     def render_submit(**html_attributes)
