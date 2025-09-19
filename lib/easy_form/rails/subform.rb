@@ -37,7 +37,7 @@ module EasyForm
       end
 
       def html_class
-        object.is_a?(EasyParams::Base) && object.id.nil? ? "new_#{name}" : super
+        object.id.nil? ? "new_#{name}" : super
       end
     end
   end

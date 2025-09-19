@@ -8,6 +8,10 @@ module EasyForm
     include EasyForm::SchemaDSL
     include EasyForm::ElementsDSL
 
+    class << self
+      attr_accessor :default
+    end
+
     attr_reader :elements_instances, :tags, :name, :object
 
     def initialize(name:, scope: nil, model: nil, params: nil, **tags)

@@ -21,11 +21,13 @@ module EasyForm
             # it is coercing to an array of hashes:
             # [['0', { "id" => "1" }], ['1', { "id" => "2" }]]
             # we need to normalize it to an array of hashes:
-            # [ { "id" => "1" }, { "id" => "2" } ]
+            # [ { "id" => "1" }, { "
+            # id" => "2" } ]
             schema.each(:"#{name}_attributes", element_definition.subform_definition.params_definition,
-                        normalize: ->(value) { value.flatten.select { |v| v.is_a?(Hash) } })
+                        normalize: ->(value) { value.flatten.select { |v| v.is_a?(Hash) } },
+                        default: element_definition.default)
           elsif element_definition < EasyForm::Subform
-            schema.has(:"#{name}_attributes", element_definition.params_definition)
+            schema.has(:"#{name}_attributes", element_definition.params_definition, default: element_definition.default)
           elsif element_definition < EasyForm::Element
             options = element_definition.output_options.dup
             method_name = options.delete(:type)

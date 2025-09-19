@@ -101,6 +101,8 @@ module EasyForm
     end
 
     def value
+      return unless object
+
       object.public_send(name)
     end
 

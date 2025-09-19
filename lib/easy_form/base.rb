@@ -10,14 +10,28 @@ module EasyForm
 
     attr_reader :elements_instances, :scope, :object, :html_options, :errors
 
-    def self.subform_class
-      EasyForm::Subform
+    class << self
+      attr_writer :elements, :scope
+      def subform_class
+        EasyForm::Subform
+      end
+
+      def scope(scope = nil)
+        return @scope unless scope
+
+        @scope = scope
+      end
+
+      def inherited(subclass)
+        subclass.elements = elements.dup
+        subclass.scope = scope
+      end
     end
 
-    def initialize(object: nil, scope: nil, **html_options)
+    def initialize(object: nil, scope: self.class.scope, params: nil, **html_options)
       super()
       @object = object
-      @scope = scope
+      @params = @scope && params.respond_to?(@scope) ? params.public_send(@scope) : params
       @html_options = html_options
       @elements_instances = []
       build_from_object
@@ -41,6 +55,15 @@ module EasyForm
         render_elements
         render_submit
       end
+    end
+
+    def render_in(view_context)
+      @_view_context = view_context
+      view_context.render html: call.html_safe
+    end
+
+    def helpers
+      @_view_context
     end
 
     private

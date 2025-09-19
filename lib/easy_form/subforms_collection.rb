@@ -9,13 +9,14 @@ module EasyForm
 
     attr_reader :subforms, :tags, :name
 
-    def self.of(subform_class)
-      @subform_definition = subform_class
-      self
-    end
-
     class << self
       attr_reader :subform_definition
+      attr_accessor :default
+
+      def of(subform_class)
+        @subform_definition = subform_class
+        self
+      end
     end
 
     def initialize(name, &block)

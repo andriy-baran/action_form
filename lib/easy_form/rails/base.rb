@@ -14,17 +14,15 @@ module EasyForm
         EasyForm::Rails::Subform
       end
 
+      attr_reader :inline_errors, :errors, :namespaced_model
+
       def initialize(model: nil, scope: self.class.scope, params: nil, **html_options)
         @namespaced_model = model
         @object = model.is_a?(Array) ? Array(model).last : model
-        if self.class.resource_model && !@object.is_a?(self.class.resource_model)
-          raise "Model must be an instance of #{self.class.resource_model}"
-        end
-
-        @errors = params&.errors || []
-        @scope = scope || param_key
-        @params = params.respond_to?(@scope) ? params.public_send(@scope) : params
-        super(object: @object, scope: @scope, **html_options)
+        @inline_errors = params&.errors || []
+        @scope = scope.nil? && @object.nil? ? nil : (scope || param_key)
+        @errors = []
+        super(object: @object, scope: @scope, params: params, **html_options)
       end
 
       class << self
@@ -35,13 +33,9 @@ module EasyForm
           @scope = model.model_name.param_key.to_sym
         end
 
-        def scope(scope = nil)
-          return @scope unless scope
-
-          @scope = scope
-        end
-
         def params_definition(scope: self.scope)
+          return super unless scope
+
           @params_definitions ||= Hash.new do |h, key|
             h[key] = begin
               klass = super
@@ -51,20 +45,16 @@ module EasyForm
           @params_definitions[scope]
         end
 
-        def has_many(name, &block) # rubocop:disable Naming/PredicatePrefix
+        def has_many(name, default: nil, &block) # rubocop:disable Naming/PredicatePrefix
           super
           elements[name].subform_definition.add_primary_key_element
           elements[name].subform_definition.add_delete_element
         end
 
-        def has_one(name, &block) # rubocop:disable Naming/PredicatePrefix
+        def has_one(name, default: nil, &block) # rubocop:disable Naming/PredicatePrefix
           super
           elements[name].add_primary_key_element
         end
-      end
-
-      def each_element(&block)
-        elements_instances.each(&block)
       end
 
       def view_template
@@ -79,15 +69,6 @@ module EasyForm
             render_submit
           end
         end
-      end
-
-      def render_in(view_context)
-        @_view_context = view_context
-        view_context.render html: call.html_safe
-      end
-
-      def helpers
-        @_view_context
       end
 
       def with_errors(form_params)
@@ -113,7 +94,7 @@ module EasyForm
       end
 
       def model_name
-        @object.model_name
+        @object&.model_name
       end
 
       def param_key
@@ -121,10 +102,14 @@ module EasyForm
       end
 
       def resource_action
+        return :search if @object.nil?
+
         @object.persisted? ? :update : :create
       end
 
       def http_method
+        return "get" if @object.nil?
+
         @object.persisted? ? "patch" : "post"
       end
 
