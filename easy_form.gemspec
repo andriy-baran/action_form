@@ -33,7 +33,7 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "easy_params", "~> 0.6.2"
+  spec.add_dependency "easy_params", "~> 0.6.3"
   spec.add_dependency "phlex", ">= 2"
   spec.add_dependency "railties", ">= 6.0.0"
 end
