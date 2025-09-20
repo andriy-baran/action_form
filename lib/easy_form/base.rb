@@ -12,6 +12,7 @@ module EasyForm
 
     class << self
       attr_writer :elements, :scope
+
       def subform_class
         EasyForm::Subform
       end

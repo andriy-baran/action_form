@@ -12,11 +12,11 @@ module EasyForm
 
     class << self
       attr_reader :subform_definition
-      attr_accessor :default
+      attr_accessor :default, :host_class
 
-      def of(subform_class)
-        @subform_definition = subform_class
-        self
+      def subform(subform_class = nil, &block)
+        @subform_definition = subform_class || Class.new(host_class.subform_class)
+        @subform_definition.class_eval(&block) if block
       end
     end
 
