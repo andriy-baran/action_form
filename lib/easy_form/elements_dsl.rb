@@ -29,9 +29,10 @@ module EasyForm
       end
 
       def has_many(name, default: nil, &block) # rubocop:disable Naming/PredicatePrefix
-        subform_definition = Class.new(subform_class)
-        subform_definition.class_eval(&block)
-        elements[name] = Class.new(EasyForm::SubformsCollection).of(subform_definition)
+        subform_definition = Class.new(EasyForm::SubformsCollection)
+        subform_definition.host_class = self
+        subform_definition.class_eval(&block) if block
+        elements[name] = subform_definition
         elements[name].default = default if default
       end
 

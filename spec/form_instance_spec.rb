@@ -96,26 +96,46 @@ class FormObject < EasyForm::Rails::Base
       output(type: :string, presence: true)
       options(MAKERS.map(&:to_a))
     end
+
+    def render_element(element)
+      div(class: "col-md-3") do
+        render_label(element)
+      end
+      div(class: "col-md-9") do
+        render_input(element)
+        render_inline_errors(element) if element.tags[:errors]
+      end
+    end
   end
 
   has_many :pets do
-    element :id do
-      input(type: :select, multiple: true, class: "form-control")
-      output(type: :integer, presence: true)
-      options(PETS.map(&:to_a))
-      label(text: "Pets", class: "form-label")
+    subform do
+      element :id do
+        input(type: :select, multiple: true, class: "form-control")
+        output(type: :integer, presence: true)
+        options(PETS.map(&:to_a))
+        label(text: "Pets", class: "form-label")
+      end
+
+      def render_element(element)
+        div(class: "col-md-3") do
+          render_label(element)
+        end
+        div(class: "col-md-9") do
+          render_input(element)
+          render_inline_errors(element) if element.tags[:errors]
+        end
+      end
     end
   end
 
-  def render_input(element)
-    div(class: "col-md-9") do
-      super
-    end
-  end
-
-  def render_label(element)
+  def render_element(element)
     div(class: "col-md-3") do
-      super
+      render_label(element)
+    end
+    div(class: "col-md-9") do
+      render_input(element)
+      render_inline_errors(element) if element.tags[:errors]
     end
   end
 
@@ -279,6 +299,26 @@ RSpec.describe "FormObject" do
     form = FormObject.new(model: Info.new)
     form.helpers = ViewHelpers.new
     html = form.call
+
+    puts "\n=== EXPECTED HTML ==="
+    puts expected_html
+    puts "\n=== ACTUAL HTML ==="
+    puts html
+    puts "\n=== DIFFERENCES ==="
+    if html == expected_html
+      puts "HTML matches exactly!"
+    else
+      puts "HTML lengths: Expected=#{expected_html.length}, Actual=#{html.length}"
+      # Find first difference
+      diff_index = html.chars.zip(expected_html.chars).find_index { |a, b| a != b }
+      puts "First difference at character #{diff_index}" if diff_index
+      if diff_index
+        start = [diff_index - 50, 0].max
+        puts "Expected around diff: #{expected_html[start, 100]}"
+        puts "Actual around diff: #{html[start, 100]}"
+      end
+    end
+
     expect(html).to eq(expected_html)
     schema = form.class.params_definition.new(info: { birthdate: "1990-01-01", biography: true, interests: [1, 3], pets_attributes: [{ id: 1 }, { id: 2 }],
                                                       car_attributes: { id: 10, maker_id: 1 } })
@@ -442,6 +482,19 @@ RSpec.describe "FormObject" do
       "</form>" \
     "</div>"
 
+    puts "\n=== PARAMS TEST - EXPECTED HTML ==="
+    puts expected_params_html
+    puts "\n=== PARAMS TEST - ACTUAL HTML ==="
+    puts html
+    puts "\n=== PARAMS TEST - DIFFERENCES ==="
+    if html == expected_params_html
+      puts "HTML matches exactly!"
+    else
+      puts "HTML lengths: Expected=#{expected_params_html.length}, Actual=#{html.length}"
+      diff_index = html.chars.zip(expected_params_html.chars).find_index { |a, b| a != b }
+      puts "First difference at character #{diff_index}" if diff_index
+    end
+
     expect(html).to eq(expected_params_html)
   end
 
@@ -472,16 +525,16 @@ RSpec.describe "FormObject" do
     "</div>" \
     '<div class="col-md-9">' \
       '<input type="text" class="form-control" name="info[birthdate]" id="info_birthdate">' \
+      '<div class="error-messages">can&#39;t be blank</div>' \
     "</div>" \
-    '<div class="error-messages">can&#39;t be blank</div>' \
     '<div class="col-md-3">' \
       '<label for="info_biography" class="form-label">Biography</label>' \
     "</div>" \
     '<div class="col-md-9">' \
       '<input name="info[biography]" type="hidden" value="0" autocomplete="off">' \
       '<input type="checkbox" name="info[biography]" id="info_biography" value="1">' \
+      '<div class="error-messages">can&#39;t be blank</div>' \
     "</div>" \
-    '<div class="error-messages">can&#39;t be blank</div>' \
     '<div class="col-md-3">' \
     "</div>" \
     '<div class="col-md-9">' \
@@ -503,8 +556,8 @@ RSpec.describe "FormObject" do
       '<input type="radio" class="form-control" name="info[car_attributes][maker_id]" id="info_car_attributes_maker_id" value="2">' \
       '<label for="info_car_attributes_maker_id">Chevrolet</label>' \
       '<input type="radio" class="form-control" name="info[car_attributes][maker_id]" id="info_car_attributes_maker_id" value="3">' \
+      '<div class="error-messages">can&#39;t be blank</div>' \
     "</div>" \
-    '<div class="error-messages">can&#39;t be blank</div>' \
     '<input type="hidden" autocomplete="off" name="info[car_attributes][id]" id="info_car_attributes_id" value="15">' \
     '<script type="text/javascript">function easyFormRemoveSubform(event) {' \
     "\n  " \
@@ -564,8 +617,8 @@ RSpec.describe "FormObject" do
         '<option value="4">Bella</option>' \
         '<option value="5">Luna</option>' \
         "</select>" \
+        '<div class="error-messages">can&#39;t be blank</div>' \
       "</div>" \
-      '<div class="error-messages">can&#39;t be blank</div>' \
     "</div>" \
     '<div id="pets_1" class="new_pets">' \
       '<div class="col-md-3">' \
@@ -579,8 +632,8 @@ RSpec.describe "FormObject" do
         '<option value="4">Bella</option>' \
         '<option value="5">Luna</option>' \
         "</select>" \
+        '<div class="error-messages">can&#39;t be blank</div>' \
       "</div>" \
-      '<div class="error-messages">can&#39;t be blank</div>' \
     "</div>" \
     '<template id="pets_template">' \
       '<div class="new_pets">' \

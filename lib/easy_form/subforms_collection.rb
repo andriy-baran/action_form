@@ -2,8 +2,9 @@
 
 module EasyForm
   # Collection of subforms that can be iterated and rendered
-  class SubformsCollection
+  class SubformsCollection < ::Phlex::HTML
     extend Forwardable
+    include EasyForm::Rendering
 
     def_delegators :@subforms, :last, :first, :length, :size, :[], :<<
 
@@ -11,17 +12,18 @@ module EasyForm
 
     class << self
       attr_reader :subform_definition
-      attr_accessor :default
+      attr_accessor :default, :host_class
 
-      def of(subform_class)
-        @subform_definition = subform_class
-        self
+      def subform(subform_class = nil, &block)
+        @subform_definition = subform_class || Class.new(host_class.subform_class)
+        @subform_definition.class_eval(&block) if block
       end
     end
 
-    def initialize(name, &block)
+    def initialize(name)
+      super()
       @name = name
-      @subforms = block ? block.call : []
+      @subforms = []
       @tags = {}
     end
 
@@ -69,6 +71,24 @@ module EasyForm
           }
         }
       JS
+    end
+
+    def view_template
+      script(type: "text/javascript") { raw safe(remove_subform_js) }
+      script(type: "text/javascript") { raw safe(add_subform_js) }
+      subforms.each do |subform|
+        if subform.tags[:template]
+          render_subform_template(subform)
+        else
+          div(id: subform.html_id, class: subform.html_class) { render_subform(subform) }
+        end
+      end
+    end
+
+    def render_subform_template(subform)
+      template(id: template_html_id) do
+        div(class: "new_#{name}") { render_subform(subform) }
+      end
     end
   end
 end
