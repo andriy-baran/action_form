@@ -97,6 +97,8 @@ module EasyForm
       attrs[:id] ||= html_id
       attrs[:value] ||= html_value
       attrs[:checked] ||= html_checked
+      attrs[:disabled] ||= disabled?
+      attrs[:readonly] ||= readonly?
       attrs
     end
 
@@ -111,6 +113,14 @@ module EasyForm
     end
 
     def detached?
+      false
+    end
+
+    def disabled?
+      false
+    end
+
+    def readonly?
       false
     end
 
