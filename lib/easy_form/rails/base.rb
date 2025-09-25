@@ -58,16 +58,9 @@ module EasyForm
       end
 
       def view_template
-        if @errors.any?
-          render_validated_form do
-            render_elements
-            render_submit
-          end
-        else
-          render_form do
-            render_elements
-            render_submit
-          end
+        render_form do
+          render_elements
+          render_submit
         end
       end
 

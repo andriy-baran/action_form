@@ -33,6 +33,7 @@ module EasyForm
     def initialize(object: nil, scope: self.class.scope, params: nil, **html_options)
       super()
       @object = object
+      @scope ||= scope
       @params = @scope && params.respond_to?(@scope) ? params.public_send(@scope) : params
       @html_options = html_options
       @elements_instances = []

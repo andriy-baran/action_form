@@ -3,7 +3,7 @@
 module EasyForm
   # Provides methods for rendering form elements and forms
   module Rendering
-    def render_elements(elements = elements_instances)
+    def render_elements(elements = elements_instances) # rubocop:disable Metrics/MethodLength
       elements.select(&:render?).each do |element|
         if element.is_a?(SubformsCollection)
           render_many_subforms(element)

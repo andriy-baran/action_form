@@ -73,7 +73,7 @@ module EasyForm
       JS
     end
 
-    def view_template
+    def view_template # rubocop:disable Metrics/AbcSize
       script(type: "text/javascript") { raw safe(remove_subform_js) }
       script(type: "text/javascript") { raw safe(add_subform_js) }
       subforms.each do |subform|

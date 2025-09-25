@@ -2,16 +2,17 @@
 
 module EasyForm
   # Represents a form element with input/output configuration and HTML attributes
+  # rubocop:disable Metrics/ClassLength
   class Element
     attr_reader :name, :input_options, :output_options, :html_name, :html_id, :select_options, :tags, :errors_messages
 
     def initialize(name, object, parent_name: nil)
       @name = name
       @object = object
-      @html_name = parent_name ? "#{parent_name}[#{name}]" : name
-      @html_id = parent_name.to_s.split(/\[|\]/).reject(&:blank?).push(name).compact.join("_")
+      @html_name = build_html_name(name, parent_name)
+      @html_id = build_html_id(name, parent_name)
       @tags = self.class.tags_list.dup
-      @errors_messages = (object.respond_to?(:errors) && object&.errors&.messages_for(name)) || []
+      @errors_messages = extract_errors_messages(object, name)
       tags.merge!(errors: errors_messages.any?)
     end
 
@@ -68,7 +69,7 @@ module EasyForm
       { for: html_id }.merge(self.class.label_options.last)
     end
 
-    def html_value
+    def html_value # rubocop:disable Metrics/MethodLength
       if input_type == :checkbox
         value ? "1" : "0"
       elsif detached?
@@ -90,7 +91,7 @@ module EasyForm
       end
     end
 
-    def input_html_attributes
+    def input_html_attributes # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity
       attrs = self.class.input_options.dup
       attrs.delete(:type) unless input_tag?
       attrs[:name] ||= html_name
@@ -135,5 +136,18 @@ module EasyForm
     def input_tag?
       !%i[select textarea].include?(input_type)
     end
+
+    def build_html_name(name, parent_name)
+      parent_name ? "#{parent_name}[#{name}]" : name
+    end
+
+    def build_html_id(name, parent_name)
+      parent_name.to_s.split(/\[|\]/).reject(&:blank?).push(name).compact.join("_")
+    end
+
+    def extract_errors_messages(object, name)
+      (object.respond_to?(:errors) && object&.errors&.messages_for(name)) || []
+    end
   end
+  # rubocop:enable Metrics/ClassLength
 end

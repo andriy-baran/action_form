@@ -52,18 +52,21 @@ module EasyForm
     def render_select
       select(**mix(element.input_html_attributes, html_attributes)) do
         element.class.select_options.each do |value, label_text|
-          selected = if element.class.input_options[:multiple]
-                       Array(element.value).include?(value)
-                     else
-                       value == element.value
-                     end
-          option(value: value, selected: selected) { label_text }
+          option(value: value, selected: option_selected?(value)) { label_text }
         end
       end
     end
 
     def render_textarea
       textarea(**mix(element.input_html_attributes, html_attributes)) { element.value }
+    end
+
+    def option_selected?(value)
+      if element.class.input_options[:multiple]
+        Array(element.value).include?(value)
+      else
+        value == element.value
+      end
     end
   end
 end
