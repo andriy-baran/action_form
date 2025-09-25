@@ -877,7 +877,7 @@ class UsersController < ApplicationController
       @user = User.create!(user_params.user.to_h)
       redirect_to @user
     else
-      @form = @form.with_errors(user_params)
+      @form = @form.with_params(user_params)
       render :new
     end
   end
@@ -894,7 +894,7 @@ class UsersController < ApplicationController
       @user.update!(user_params.user.to_h)
       redirect_to @user
     else
-      @form = @form.with_errors(user_params)
+      @form = @form.with_params(user_params)
       render :edit
     end
   end
@@ -923,7 +923,7 @@ class UserForm < EasyForm::Rails::Base
 end
 
 # When validation fails:
-@form = @form.with_errors(invalid_params)
+@form = @form.with_params(invalid_params)
 # The form will automatically display validation errors
 ```
 

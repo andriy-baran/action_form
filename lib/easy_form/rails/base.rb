@@ -62,7 +62,7 @@ module EasyForm
         end
       end
 
-      def with_errors(form_params)
+      def with_params(form_params)
         self.class.new(model: @namespaced_model, scope: @scope, params: form_params, **html_options)
       end
 
