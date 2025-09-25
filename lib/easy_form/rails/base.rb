@@ -45,13 +45,13 @@ module EasyForm
           @params_definitions[scope]
         end
 
-        def has_many(name, default: nil, &block) # rubocop:disable Naming/PredicatePrefix
+        def many(name, default: nil, &block)
           super
           elements[name].subform_definition.add_primary_key_element
           elements[name].subform_definition.add_delete_element
         end
 
-        def has_one(name, default: nil, &block) # rubocop:disable Naming/PredicatePrefix
+        def subform(name, default: nil, &block)
           super
           elements[name].add_primary_key_element
         end

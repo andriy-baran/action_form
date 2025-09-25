@@ -90,7 +90,7 @@ class FormObject < EasyForm::Rails::Base
     label(class: "form-label")
   end
 
-  has_one :car do
+  subform :car do
     element :maker_id do
       input(type: :radio, class: "form-control")
       output(type: :string, presence: true)
@@ -108,7 +108,7 @@ class FormObject < EasyForm::Rails::Base
     end
   end
 
-  has_many :pets do
+  many :pets do
     subform do
       element :id do
         input(type: :select, multiple: true, class: "form-control")
@@ -299,26 +299,6 @@ RSpec.describe "FormObject" do
     form = FormObject.new(model: Info.new)
     form.helpers = ViewHelpers.new
     html = form.call
-
-    puts "\n=== EXPECTED HTML ==="
-    puts expected_html
-    puts "\n=== ACTUAL HTML ==="
-    puts html
-    puts "\n=== DIFFERENCES ==="
-    if html == expected_html
-      puts "HTML matches exactly!"
-    else
-      puts "HTML lengths: Expected=#{expected_html.length}, Actual=#{html.length}"
-      # Find first difference
-      diff_index = html.chars.zip(expected_html.chars).find_index { |a, b| a != b }
-      puts "First difference at character #{diff_index}" if diff_index
-      if diff_index
-        start = [diff_index - 50, 0].max
-        puts "Expected around diff: #{expected_html[start, 100]}"
-        puts "Actual around diff: #{html[start, 100]}"
-      end
-    end
-
     expect(html).to eq(expected_html)
     schema = form.class.params_definition.new(info: { birthdate: "1990-01-01", biography: true, interests: [1, 3], pets_attributes: [{ id: 1 }, { id: 2 }],
                                                       car_attributes: { id: 10, maker_id: 1 } })
@@ -481,20 +461,6 @@ RSpec.describe "FormObject" do
         '<input name="commit" type="submit" value="Create Info">' \
       "</form>" \
     "</div>"
-
-    puts "\n=== PARAMS TEST - EXPECTED HTML ==="
-    puts expected_params_html
-    puts "\n=== PARAMS TEST - ACTUAL HTML ==="
-    puts html
-    puts "\n=== PARAMS TEST - DIFFERENCES ==="
-    if html == expected_params_html
-      puts "HTML matches exactly!"
-    else
-      puts "HTML lengths: Expected=#{expected_params_html.length}, Actual=#{html.length}"
-      diff_index = html.chars.zip(expected_params_html.chars).find_index { |a, b| a != b }
-      puts "First difference at character #{diff_index}" if diff_index
-    end
-
     expect(html).to eq(expected_params_html)
   end
 

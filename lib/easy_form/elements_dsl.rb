@@ -28,7 +28,7 @@ module EasyForm
         elements[name].class_eval(&block)
       end
 
-      def has_many(name, default: nil, &block) # rubocop:disable Naming/PredicatePrefix
+      def many(name, default: nil, &block)
         subform_definition = Class.new(EasyForm::SubformsCollection)
         subform_definition.host_class = self
         subform_definition.class_eval(&block) if block
@@ -36,7 +36,7 @@ module EasyForm
         elements[name].default = default if default
       end
 
-      def has_one(name, default: nil, &block) # rubocop:disable Naming/PredicatePrefix
+      def subform(name, default: nil, &block)
         elements[name] = Class.new(subform_class)
         elements[name].class_eval(&block)
         elements[name].default = default if default
