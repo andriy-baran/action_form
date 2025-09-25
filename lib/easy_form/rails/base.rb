@@ -14,14 +14,12 @@ module EasyForm
         EasyForm::Rails::Subform
       end
 
-      attr_reader :inline_errors, :errors, :namespaced_model
+      attr_reader :namespaced_model
 
       def initialize(model: nil, scope: self.class.scope, params: nil, **html_options)
         @namespaced_model = model
         @object = model.is_a?(Array) ? Array(model).last : model
-        @inline_errors = params&.errors || []
         @scope = scope.nil? && @object.nil? ? nil : (scope || param_key)
-        @errors = []
         super(object: @object, scope: @scope, params: params, **html_options)
       end
 
