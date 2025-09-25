@@ -1,5 +1,8 @@
 # EasyForm
 
+[![Maintainability](https://qlty.sh/gh/andriy-baran/projects/easy_params/maintainability.svg)](https://qlty.sh/gh/andriy-baran/projects/easy_params)
+[![Code Coverage](https://qlty.sh/gh/andriy-baran/projects/easy_params/coverage.svg)](https://qlty.sh/gh/andriy-baran/projects/easy_params)
+
 This library allows you to build complex forms in Ruby with a simple DSL. It provides:
 
 - A clean, declarative syntax for defining form fields and validations
