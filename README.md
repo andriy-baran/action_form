@@ -6,7 +6,7 @@
 This library allows you to build complex forms in Ruby with a simple DSL. It provides:
 
 - A clean, declarative syntax for defining form fields and validations
-- Support for nested forms and has_many relationships
+- Support for nested forms and many relationships
 - Automatic form rendering with customizable HTML/CSS
 - Built-in error handling and validation
 - Integration with Rails and other Ruby web frameworks
@@ -44,13 +44,13 @@ EasyForm is built around a modular architecture that separates form definition, 
 
 **EasyForm::Base** is the main form class that inherits from `Phlex::HTML` for rendering. It combines three key modules:
 
-- **Elements DSL**: Provides methods like `element`, `has_one`, and `has_many` to define form structure using block syntax, where each element can be configured with input types, labels, and validation options
+- **Elements DSL**: Provides methods like `element`, `subform`, and `many` to define form structure using block syntax, where each element can be configured with input types, labels, and validation options
 - **Rendering**: Converts form elements into HTML using Phlex, handles nested forms, error display, and provides JavaScript for dynamic form interactions
 - **Schema DSL**: Defines how form data is structured and validated using [EasyParams](https://github.com/andriy-baran/easy_params). It generates parameter classes that can process submitted form data and restore the form state when validation fails
 
 ### How It Works
 
-1. **Form Definition**: You define your form using a declarative DSL with `element`, `has_one`, and `has_many` methods
+1. **Form Definition**: You define your form using a declarative DSL with `element`, `subform`, and `many` methods
 2. **Element Creation**: Each element definition creates a class that inherits from `EasyForm::Element`. The element name must correspond to a method or attribute on the object passed to the form (e.g., `element :name` expects the object to have a `name` method)
 3. **Instance Building**: When the form is instantiated, it iterates through each defined element and creates an instance. Each element instance is bound to the object and can access its current values, errors, and HTML attributes
 4. **Rendering**: The form renders itself using Phlex, with each element containing all the data needed to render a complete form control (input type, current value, label text, HTML attributes, validation errors, and select options)
@@ -59,8 +59,8 @@ EasyForm is built around a modular architecture that separates form definition, 
 ### Key Features
 
 - **Declarative DSL**: Define forms with simple, readable syntax
-- **Nested Forms**: Support for complex nested structures with `has_one` and `has_many`
-- **Dynamic Collections**: JavaScript-powered add/remove functionality for has_many relationships
+- **Nested Forms**: Support for complex nested structures with `subform` and `many`
+- **Dynamic Collections**: JavaScript-powered add/remove functionality for many relationships
 - **Flexible Rendering**: Each element can be configured with custom input types, labels, and HTML attributes
 - **Error Integration**: Built-in support for displaying validation errors
 - **Rails Integration**: Seamless integration with Rails forms and parameter handling
@@ -72,7 +72,7 @@ EasyForm follows a bidirectional data flow pattern that handles both form displa
 
 #### **Phase 1: Form Display**
 1. **Object/Model**: Your Ruby object (User model, ActiveRecord instance, or plain Ruby object) containing data to display
-2. **Form Definition**: EasyForm class defined using the DSL (`element`, `has_one`, `has_many` methods)
+2. **Form Definition**: EasyForm class defined using the DSL (`element`, `subform`, `many` methods)
 3. **Element Instances**: Each form element becomes an instance bound to the object, with access to current values, errors, and HTML attributes
 4. **HTML Rendering**: Final HTML output rendered using Phlex, ready for the browser
 
@@ -86,13 +86,13 @@ EasyForm follows a bidirectional data flow pattern that handles both form displa
 - **Single Source of Truth**: The same form definition handles both displaying existing data and processing new data
 - **Automatic Parameter Handling**: [EasyParams](https://github.com/andriy-baran/easy_params) classes are automatically generated to mirror your form structure
 - **Error Integration**: Failed validations can re-render the form with submitted data and error messages
-- **Nested Support**: Both phases support complex nested structures through `has_one` and `has_many` relationships
+- **Nested Support**: Both phases support complex nested structures through `subform` and `many` relationships
 
 ## Usage
 
 EasyForm follows a **Declare/Plan/Execute** pattern that separates form definition from data handling and rendering:
 
-1. **Declare**: Define your form structure using the DSL (`element`, `has_one`, `has_many`)
+1. **Declare**: Define your form structure using the DSL (`element`, `subform`, `many`)
 2. **Plan**: EasyForm creates element instances bound to your object's actual values
 3. **Execute**: Each element renders itself with the appropriate HTML, labels, and validation
 
@@ -161,11 +161,11 @@ end
 
 #### **Nested Forms**
 
-Use `has_one` for single nested objects:
+Use `subform` for single nested objects:
 
 ```ruby
 class UserForm < EasyForm::Base
-  has_one :profile do
+  subform :profile do
     element :bio do
       input type: :textarea, rows: 4
       output type: :string
@@ -179,19 +179,21 @@ class UserForm < EasyForm::Base
 end
 ```
 
-Use `has_many` for collections of nested objects:
+Use `many` for collections of nested objects. Note that `many` requires a `subform` block inside it:
 
 ```ruby
 class UserForm < EasyForm::Base
-  has_many :addresses do
-    element :street do
-      input type: :text
-      output type: :string, presence: true
-    end
+  many :addresses do
+    subform do
+      element :street do
+        input type: :text
+        output type: :string, presence: true
+      end
 
-    element :city do
-      input type: :text
-      output type: :string, presence: true
+      element :city do
+        input type: :text
+        output type: :string, presence: true
+      end
     end
   end
 end
@@ -224,22 +226,24 @@ class UserForm < EasyForm::Base
     options [["tech", "Technology"], ["sports", "Sports"], ["music", "Music"]]
   end
 
-  has_one :profile do
+  subform :profile do
     element :bio do
       input type: :textarea, rows: 4
       output type: :string
     end
   end
 
-  has_many :addresses do
-    element :street do
-      input type: :text
-      output type: :string, presence: true
-    end
+  many :addresses do
+    subform do
+      element :street do
+        input type: :text
+        output type: :string, presence: true
+      end
 
-    element :city do
-      input type: :text
-      output type: :string, presence: true
+      element :city do
+        input type: :text
+        output type: :string, presence: true
+      end
     end
   end
 end
@@ -313,10 +317,12 @@ end
 Tags are automatically propagated in nested forms:
 
 ```ruby
-has_many :addresses do
-  element :street do
-    input type: :text
-    tags required: true
+many :addresses do
+  subform do
+    element :street do
+      input type: :text
+      tags required: true
+    end
   end
 end
 
@@ -366,10 +372,12 @@ end
 
 **Template Control:**
 ```ruby
-has_many :items do
-  element :name do
-    input type: :text
-    tags template: true  # Mark for template rendering
+many :items do
+  subform do
+    element :name do
+      input type: :text
+      tags template: true  # Mark for template rendering
+    end
   end
 end
 ```
@@ -822,9 +830,9 @@ class AdminUserForm < EasyForm::Rails::Base
 end
 ```
 
-#### **Nested Attributes for has_many Relations**
+#### **Nested Attributes for many Relations**
 
-Rails integration automatically handles nested attributes for `has_many` relationships:
+Rails integration automatically handles nested attributes for `many` relationships:
 
 ```ruby
 class UserForm < EasyForm::Rails::Base
@@ -835,15 +843,17 @@ class UserForm < EasyForm::Rails::Base
     output type: :string, presence: true
   end
 
-  has_many :addresses do
-    element :street do
-      input type: :text
-      output type: :string, presence: true
-    end
+  many :addresses do
+    subform do
+      element :street do
+        input type: :text
+        output type: :string, presence: true
+      end
 
-    element :city do
-      input type: :text
-      output type: :string, presence: true
+      element :city do
+        input type: :text
+        output type: :string, presence: true
+      end
     end
   end
 end
@@ -950,7 +960,7 @@ end
 
 #### **Dynamic Form Buttons**
 
-EasyForm provides built-in methods for rendering add/remove buttons for dynamic `has_many` forms:
+EasyForm provides built-in methods for rendering add/remove buttons for dynamic `many` forms:
 
 **`render_new_subform_button`** - Renders a button to add new subform instances:
 
@@ -958,15 +968,17 @@ EasyForm provides built-in methods for rendering add/remove buttons for dynamic 
 class UserForm < EasyForm::Rails::Base
   resource_model User
 
-  has_many :addresses do
-    element :street do
-      input type: :text
-      output type: :string, presence: true
-    end
+  many :addresses do
+    subform do
+      element :street do
+        input type: :text
+        output type: :string, presence: true
+      end
 
-    element :city do
-      input type: :text
-      output type: :string, presence: true
+      element :city do
+        input type: :text
+        output type: :string, presence: true
+      end
     end
   end
 
@@ -990,15 +1002,17 @@ end
 class UserForm < EasyForm::Rails::Base
   resource_model User
 
-  has_many :addresses do
-    element :street do
-      input type: :text
-      output type: :string, presence: true
-    end
+  many :addresses do
+    subform do
+      element :street do
+        input type: :text
+        output type: :string, presence: true
+      end
 
-    element :city do
-      input type: :text
-      output type: :string, presence: true
+      element :city do
+        input type: :text
+        output type: :string, presence: true
+      end
     end
   end
 
@@ -1024,7 +1038,7 @@ end
 class UserForm < EasyForm::Rails::Base
   resource_model User
 
-  has_many :addresses do
+  many :addresses do
     element :street do
       input type: :text, class: "form-control"
       output type: :string, presence: true
