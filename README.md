@@ -6,7 +6,7 @@
 This library allows you to build complex forms in Ruby with a simple DSL. It provides:
 
 - A clean, declarative syntax for defining form fields and validations
-- Support for nested forms and many relationships
+- Support for nested forms
 - Automatic form rendering with customizable HTML/CSS
 - Built-in error handling and validation
 - Integration with Rails and other Ruby web frameworks
@@ -154,8 +154,8 @@ element :field_name do
   # Select options (for select, radio, checkbox)
   options [["value1", "Label 1"], ["value2", "Label 2"]]
 
-  # Custom HTML attributes
-  tags custom_attribute: "value"
+  # Elements tagging
+  tags column: "1"
 end
 ```
 
@@ -258,7 +258,6 @@ EasyForm includes a flexible tagging system that allows you to add custom metada
 1. **Rendering Control**: Tags control how elements are rendered (e.g., showing error messages, template rendering)
 2. **Custom Metadata**: Store custom data that can be accessed during rendering
 3. **Element Classification**: Mark elements with specific characteristics for conditional logic
-4. **HTML Generation**: Influence HTML attributes and CSS classes
 
 #### **Automatic Tags**
 
@@ -288,9 +287,9 @@ element :password do
   output type: :string, presence: true
 
   # Custom tags
-  tags priority: "high",
-       security: "sensitive",
-       css_class: "password-field"
+  tags row: "3",
+       column: "4",
+       background: "gray"
 end
 ```
 
@@ -304,7 +303,7 @@ render_inline_errors(element) if element.tags[:errors]
 
 # Custom rendering logic
 def render_element(element)
-  if element.tags[:priority] == "high"
+  if element.tags[:row] == "3"
     div(class: "high-priority") { super }
   else
     super
@@ -338,18 +337,15 @@ end
 ```ruby
 element :email do
   input type: :email
-  tags field_type: "contact",
-       validation: "strict"
+  tags field_type: "contact"
 end
 
 # In your form class:
 def render_input(element)
-  css_class = case element.tags[:field_type]
-              when "contact" then "contact-field"
-              when "billing" then "billing-field"
-              else "default-field"
-              end
   super(class: css_class)
+  span do
+    help_info[element.tags[:field_type]]
+  end
 end
 ```
 
@@ -366,18 +362,6 @@ def render_inline_errors(element)
     div(class: "custom-errors") { element.errors_messages.join(" | ") }
   else
     super
-  end
-end
-```
-
-**Template Control:**
-```ruby
-many :items do
-  subform do
-    element :name do
-      input type: :text
-      tags template: true  # Mark for template rendering
-    end
   end
 end
 ```
@@ -678,6 +662,8 @@ element :static_field do
 end
 ```
 
+
+
 #### **Label Methods**
 
 **`label_text`** - Gets the text to display in the label:
@@ -728,6 +714,28 @@ end
 
 # When validation fails:
 element.errors_messages  # => ["can't be blank", "is invalid"]
+```
+
+**`disabled?`** - Controls whether the element is disabled:
+```ruby
+element :username do
+  input type: :text
+
+  def disabled?
+    object.persisted?  # Disable for existing records
+  end
+end
+```
+
+**`readonly?`** - Controls whether the element is readonly:
+```ruby
+element :email do
+  input type: :email
+
+  def readonly?
+    object.verified?  # Readonly if email is verified
+  end
+end
 ```
 
 #### **Element Lifecycle**
