@@ -70,13 +70,11 @@ module EasyForm
       { for: html_id }.merge(self.class.label_options.last)
     end
 
-    def html_value # rubocop:disable Metrics/MethodLength
+    def html_value
       if input_type == :checkbox
         value ? "1" : "0"
       elsif detached?
         self.class.input_options[:value]
-      elsif !input_tag?
-        nil
       elsif object.is_a?(EasyParams::Base)
         object.public_send(name)
       else
@@ -85,22 +83,23 @@ module EasyForm
     end
 
     def html_checked
-      if input_type == :checkbox
-        value
-      elsif input_type == :radio
-        value == html_value
-      end
+      return unless input_type == :checkbox
+
+      value
     end
 
     def input_html_attributes # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity
       attrs = self.class.input_options.dup
-      attrs.delete(:type) unless input_tag?
       attrs[:name] ||= html_name
       attrs[:id] ||= html_id
       attrs[:value] ||= html_value
       attrs[:checked] ||= html_checked
       attrs[:disabled] ||= disabled?
       attrs[:readonly] ||= readonly?
+      unless input_tag?
+        attrs.delete(:type)
+        attrs.delete(:value)
+      end
       attrs
     end
 

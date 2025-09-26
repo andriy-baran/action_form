@@ -622,13 +622,24 @@ The `EasyForm::Element` class represents individual form elements and provides m
 
 #### **Core Methods**
 
-**`value`** - Gets the current value from the bound object:
+**`value`** - Gets the current value from the bound object
 ```ruby
 element :name do
   input type: :text
 
   def value
-    super.strftime('%Y-%m-%d') # Format before render
+    # Default: object.name
+    object.other_name
+  end
+end
+```
+**`html_value`** - Formats value for HTML (dafault `value.to_s`):
+```ruby
+element :name do
+  input type: :text
+
+  def html_value
+    value.strftime('%Y-%m-%d') # Format before render
   end
 end
 ```

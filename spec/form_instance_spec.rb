@@ -166,7 +166,6 @@ class ViewHelpers
   def format_maker(maker_id)
     maker_id.to_s
   end
-
 end
 
 RSpec.describe "FormObject" do
