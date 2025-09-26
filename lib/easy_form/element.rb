@@ -5,6 +5,7 @@ module EasyForm
   # rubocop:disable Metrics/ClassLength
   class Element
     attr_reader :name, :input_options, :output_options, :html_name, :html_id, :select_options, :tags, :errors_messages
+    attr_accessor :helpers
 
     def initialize(name, object, parent_name: nil)
       @name = name

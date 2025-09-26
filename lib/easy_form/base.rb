@@ -93,14 +93,18 @@ module EasyForm
 
     def build_subform(name, form_definition, value: subform_value(name), index: nil)
       html_name = subform_html_name(name, index: index)
-      form_definition.new(name: name, scope: html_name, model: value, index: index)
+      form_definition.new(name: name, scope: html_name, model: value, index: index).tap do |subform|
+        subform.helpers = helpers
+      end
     end
 
     def build_subform_template(name, form_definition)
       html_name = subform_html_name(name, index: "NEW_RECORD")
       elements_keys = form_definition.elements.keys.push(:persisted?)
       value = Struct.new(*elements_keys).new
-      form_definition.new(name: name, scope: html_name, model: value, template: true)
+      form_definition.new(name: name, scope: html_name, model: value, template: true).tap do |subform|
+        subform.helpers = helpers
+      end
     end
   end
 end

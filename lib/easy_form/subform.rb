@@ -14,6 +14,7 @@ module EasyForm
     end
 
     attr_reader :elements_instances, :tags, :name, :object
+    attr_accessor :helpers
 
     def initialize(name:, scope: nil, model: nil, params: nil, **tags)
       super()

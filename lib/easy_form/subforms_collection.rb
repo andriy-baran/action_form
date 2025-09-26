@@ -9,6 +9,7 @@ module EasyForm
     def_delegators :@subforms, :last, :first, :length, :size, :[], :<<
 
     attr_reader :subforms, :tags, :name
+    attr_accessor :helpers
 
     class << self
       attr_reader :subform_definition
@@ -77,6 +78,7 @@ module EasyForm
       script(type: "text/javascript") { raw safe(remove_subform_js) }
       script(type: "text/javascript") { raw safe(add_subform_js) }
       subforms.each do |subform|
+        subform.helpers = helpers
         if subform.tags[:template]
           render_subform_template(subform)
         else

@@ -5,6 +5,7 @@ module EasyForm
   module Rendering
     def render_elements(elements = elements_instances) # rubocop:disable Metrics/MethodLength
       elements.select(&:render?).each do |element|
+        element.helpers = helpers
         if element.is_a?(SubformsCollection)
           render_many_subforms(element)
         elsif element.is_a?(Subform)

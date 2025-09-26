@@ -73,7 +73,7 @@ class FormObject < EasyForm::Rails::Base
     output(type: :date, presence: true)
 
     def value
-      super.strftime("%Y-%m-%d")
+      helpers.format_date(super)
     end
   end
 
@@ -95,6 +95,10 @@ class FormObject < EasyForm::Rails::Base
       input(type: :radio, class: "form-control")
       output(type: :string, presence: true)
       options(MAKERS.map(&:to_a))
+
+      def html_value
+        helpers.format_maker(super)
+      end
     end
 
     def render_element(element)
@@ -154,6 +158,15 @@ class ViewHelpers
   def form_authenticity_token
     "XD2kMuxmzYBT2emHESuqFrxJKlwKZnJPmQsL9zBxby2BtSqUzQPVNMJfF_3bbG9UksL2Gevrt803ZEBGnRixTg"
   end
+
+  def format_date(date)
+    date.strftime("%Y-%m-%d")
+  end
+
+  def format_maker(maker_id)
+    maker_id.to_s
+  end
+
 end
 
 RSpec.describe "FormObject" do
