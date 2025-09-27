@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-module EasyForm
+module ActionForm
   module Rails
-    # Rendering module for EasyForm Rails integration that provides form rendering functionality.
+    # Rendering module for ActionForm Rails integration that provides form rendering functionality.
     # Handles rendering of forms with error messages, authenticity tokens, UTF-8 encoding,
     # and other Rails-specific form requirements. Also provides helper methods for rendering
     # submit buttons and form elements.

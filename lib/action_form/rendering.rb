@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module EasyForm
+module ActionForm
   # Provides methods for rendering form elements and forms
   module Rendering
     def render_elements(elements = elements_instances) # rubocop:disable Metrics/MethodLength

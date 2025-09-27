@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module EasyForm
+module ActionForm
   # Represents a form element with input/output configuration and HTML attributes
   # rubocop:disable Metrics/ClassLength
   class Element

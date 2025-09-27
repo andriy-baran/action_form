@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module EasyForm
+module ActionForm
   # Represents a form element with input/output configuration and HTML attributes
   class Input < Phlex::HTML
     attr_reader :element, :html_attributes

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module EasyForm
+module ActionForm
   # Provides DSL methods for defining form schemas and converting them to EasyParams
   module SchemaDSL
     def self.included(base)
@@ -15,7 +15,7 @@ module EasyForm
       def params_definition(*) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         schema = Class.new(params_class)
         elements.each do |name, element_definition|
-          if element_definition < EasyForm::SubformsCollection
+          if element_definition < ActionForm::SubformsCollection
             # nested forms are passed as a hash that looks like this:
             # { "0" => { "id" => "1" }, "1" => { "id" => "2" } }
             # it is coercing to an array of hashes:
@@ -26,9 +26,9 @@ module EasyForm
             schema.each(:"#{name}_attributes", element_definition.subform_definition.params_definition,
                         normalize: ->(value) { value.flatten.select { |v| v.is_a?(Hash) } },
                         default: element_definition.default)
-          elsif element_definition < EasyForm::Subform
+          elsif element_definition < ActionForm::Subform
             schema.has(:"#{name}_attributes", element_definition.params_definition, default: element_definition.default)
-          elsif element_definition < EasyForm::Element
+          elsif element_definition < ActionForm::Element
             options = element_definition.output_options.dup
             method_name = options.delete(:type)
             schema.public_send(method_name, name, **options)

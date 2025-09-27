@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    easy_form (0.1.0)
+    action_form (0.1.0)
       easy_params (~> 0.6.3)
       phlex (>= 2)
       railties (>= 6.0.0)
@@ -192,7 +192,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  easy_form!
+  action_form!
   irb
   pry
   rake (~> 13.0)

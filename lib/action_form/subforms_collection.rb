@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-module EasyForm
+module ActionForm
   # Collection of subforms that can be iterated and rendered
   class SubformsCollection < ::Phlex::HTML
     extend Forwardable
-    include EasyForm::Rendering
+    include ActionForm::Rendering
 
     def_delegators :@subforms, :last, :first, :length, :size, :[], :<<
 

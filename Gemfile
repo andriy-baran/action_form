@@ -2,7 +2,7 @@
 
 source "https://rubygems.org"
 
-# Specify your gem's dependencies in easy_form.gemspec
+# Specify your gem's dependencies in action_form.gemspec
 gemspec
 
 gem "irb"

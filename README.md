@@ -1,4 +1,4 @@
-# EasyForm
+# ActionForm
 
 [![Maintainability](https://qlty.sh/gh/andriy-baran/projects/easy_params/maintainability.svg)](https://qlty.sh/gh/andriy-baran/projects/easy_params)
 [![Code Coverage](https://qlty.sh/gh/andriy-baran/projects/easy_params/coverage.svg)](https://qlty.sh/gh/andriy-baran/projects/easy_params)
@@ -16,7 +16,7 @@ This library allows you to build complex forms in Ruby with a simple DSL. It pro
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'easy_form'
+gem 'action_form'
 ```
 
 And then execute:
@@ -28,7 +28,7 @@ $ bundle install
 Or install it yourself as:
 
 ```bash
-$ gem install easy_form
+$ gem install action_form
 ```
 
 ### Requirements
@@ -38,11 +38,11 @@ $ gem install easy_form
 
 ## Concept
 
-EasyForm is built around a modular architecture that separates form definition, data handling, and rendering concerns.
+ActionForm is built around a modular architecture that separates form definition, data handling, and rendering concerns.
 
 ### Core Architecture
 
-**EasyForm::Base** is the main form class that inherits from `Phlex::HTML` for rendering. It combines three key modules:
+**ActionForm::Base** is the main form class that inherits from `Phlex::HTML` for rendering. It combines three key modules:
 
 - **Elements DSL**: Provides methods like `element`, `subform`, and `many` to define form structure using block syntax, where each element can be configured with input types, labels, and validation options
 - **Rendering**: Converts form elements into HTML using Phlex, handles nested forms, error display, and provides JavaScript for dynamic form interactions
@@ -51,7 +51,7 @@ EasyForm is built around a modular architecture that separates form definition, 
 ### How It Works
 
 1. **Form Definition**: You define your form using a declarative DSL with `element`, `subform`, and `many` methods
-2. **Element Creation**: Each element definition creates a class that inherits from `EasyForm::Element`. The element name must correspond to a method or attribute on the object passed to the form (e.g., `element :name` expects the object to have a `name` method)
+2. **Element Creation**: Each element definition creates a class that inherits from `ActionForm::Element`. The element name must correspond to a method or attribute on the object passed to the form (e.g., `element :name` expects the object to have a `name` method)
 3. **Instance Building**: When the form is instantiated, it iterates through each defined element and creates an instance. Each element instance is bound to the object and can access its current values, errors, and HTML attributes
 4. **Rendering**: The form renders itself using Phlex, with each element containing all the data needed to render a complete form control (input type, current value, label text, HTML attributes, validation errors, and select options)
 5. **Parameter Handling**: The form automatically generates [EasyParams](https://github.com/andriy-baran/easy_params) classes that mirror the form structure, providing type coercion, validation, and strong parameter handling for form submissions. Each element's `output` configuration determines how submitted data is processed
@@ -67,18 +67,18 @@ EasyForm is built around a modular architecture that separates form definition, 
 
 ### Data Flow
 
-EasyForm follows a bidirectional data flow pattern that handles both form display and form submission:
+ActionForm follows a bidirectional data flow pattern that handles both form display and form submission:
 
 
 #### **Phase 1: Form Display**
 1. **Object/Model**: Your Ruby object (User model, ActiveRecord instance, or plain Ruby object) containing data to display
-2. **Form Definition**: EasyForm class defined using the DSL (`element`, `subform`, `many` methods)
+2. **Form Definition**: ActionForm class defined using the DSL (`element`, `subform`, `many` methods)
 3. **Element Instances**: Each form element becomes an instance bound to the object, with access to current values, errors, and HTML attributes
 4. **HTML Rendering**: Final HTML output rendered using Phlex, ready for the browser
 
 #### **Phase 2: Form Submission**
 1. **User Input**: Data submitted through the form by the user
-2. **Parameter Validation**: EasyForm's auto-generated [EasyParams](https://github.com/andriy-baran/easy_params) classes validate and coerce submitted data
+2. **Parameter Validation**: ActionForm's auto-generated [EasyParams](https://github.com/andriy-baran/easy_params) classes validate and coerce submitted data
 3. **Form Processing**: Your application logic processes the validated data (database saves, business logic, etc.)
 4. **Response**: Result sent back to user (success page, error display, redirect, etc.)
 
@@ -90,22 +90,22 @@ EasyForm follows a bidirectional data flow pattern that handles both form displa
 
 ## Usage
 
-EasyForm follows a **Declare/Plan/Execute** pattern that separates form definition from data handling and rendering:
+ActionForm follows a **Declare/Plan/Execute** pattern that separates form definition from data handling and rendering:
 
 1. **Declare**: Define your form structure using the DSL (`element`, `subform`, `many`)
-2. **Plan**: EasyForm creates element instances bound to your object's actual values
+2. **Plan**: ActionForm creates element instances bound to your object's actual values
 3. **Execute**: Each element renders itself with the appropriate HTML, labels, and validation
 
 ### Form elements declaration
 
-EasyForm provides a declarative DSL for defining form elements. Each form class inherits from `EasyForm::Base` and uses three main methods to define form structure:
+ActionForm provides a declarative DSL for defining form elements. Each form class inherits from `ActionForm::Base` and uses three main methods to define form structure:
 
 #### **Basic Elements**
 
 Use `element` to define individual form fields:
 
 ```ruby
-class UserForm < EasyForm::Base
+class UserForm < ActionForm::Base
   element :name do
     input type: :text, class: "form-control"
     output type: :string, presence: true
@@ -132,7 +132,7 @@ end
 
 #### **Available Output Types**
 
-EasyForm uses [EasyParams](https://github.com/andriy-baran/easy_params) for parameter validation and type coercion:
+ActionForm uses [EasyParams](https://github.com/andriy-baran/easy_params) for parameter validation and type coercion:
 
 - **Basic types**: `:string`, `:integer`, `:float`, `:bool`, `:date`, `:datetime`
 - **Collections**: `:array` (with `of:` option for element type)
@@ -164,7 +164,7 @@ end
 Use `subform` for single nested objects:
 
 ```ruby
-class UserForm < EasyForm::Base
+class UserForm < ActionForm::Base
   subform :profile do
     element :bio do
       input type: :textarea, rows: 4
@@ -182,7 +182,7 @@ end
 Use `many` for collections of nested objects. Note that `many` requires a `subform` block inside it:
 
 ```ruby
-class UserForm < EasyForm::Base
+class UserForm < ActionForm::Base
   many :addresses do
     subform do
       element :street do
@@ -202,7 +202,7 @@ end
 #### **Complete Example**
 
 ```ruby
-class UserForm < EasyForm::Base
+class UserForm < ActionForm::Base
   element :name do
     input type: :text, class: "form-control"
     output type: :string, presence: true
@@ -251,7 +251,7 @@ end
 
 ### Tagging system
 
-EasyForm includes a flexible tagging system that allows you to add custom metadata to form elements and control rendering behavior. Tags serve multiple purposes:
+ActionForm includes a flexible tagging system that allows you to add custom metadata to form elements and control rendering behavior. Tags serve multiple purposes:
 
 #### **Purpose of Tags**
 
@@ -261,7 +261,7 @@ EasyForm includes a flexible tagging system that allows you to add custom metada
 
 #### **Automatic Tags**
 
-EasyForm automatically adds several tags based on element configuration:
+ActionForm automatically adds several tags based on element configuration:
 
 ```ruby
 element :email do
@@ -366,12 +366,12 @@ def render_inline_errors(element)
 end
 ```
 
-The tagging system provides a powerful way to extend EasyForm's behavior without modifying the core library, enabling custom rendering logic and element classification.
+The tagging system provides a powerful way to extend ActionForm's behavior without modifying the core library, enabling custom rendering logic and element classification.
 
 
 ### Rendering process
 
-EasyForm uses a hierarchical rendering system built on [Phlex](https://www.phlex.fun/) that allows complete customization of HTML output. The rendering process follows a clear flow from form-level down to individual elements.
+ActionForm uses a hierarchical rendering system built on [Phlex](https://www.phlex.fun/) that allows complete customization of HTML output. The rendering process follows a clear flow from form-level down to individual elements.
 
 #### **Rendering Flow**
 
@@ -412,7 +412,7 @@ You can override any rendering method in your form class to customize the HTML o
 
 **Basic Customization:**
 ```ruby
-class UserForm < EasyForm::Base
+class UserForm < ActionForm::Base
   element :name do
     input type: :text
     output type: :string, presence: true
@@ -443,7 +443,7 @@ end
 
 **Bootstrap-Style Layout:**
 ```ruby
-class UserForm < EasyForm::Base
+class UserForm < ActionForm::Base
   element :name do
     input type: :text
     output type: :string, presence: true
@@ -474,7 +474,7 @@ end
 
 **Conditional Rendering:**
 ```ruby
-class UserForm < EasyForm::Base
+class UserForm < ActionForm::Base
   element :email do
     input type: :email
     tags field_type: "contact"
@@ -501,7 +501,7 @@ end
 
 **Custom Error Rendering:**
 ```ruby
-class UserForm < EasyForm::Base
+class UserForm < ActionForm::Base
   element :username do
     input type: :text
     output type: :string, presence: true
@@ -521,7 +521,7 @@ end
 
 **Custom Submit Button:**
 ```ruby
-class UserForm < EasyForm::Base
+class UserForm < ActionForm::Base
   # Custom submit button with styling
   def render_submit(**html_attributes)
     div(class: "form-actions") do
@@ -533,7 +533,7 @@ end
 
 **Complete Form Layout Override:**
 ```ruby
-class UserForm < EasyForm::Base
+class UserForm < ActionForm::Base
   element :name do
     input type: :text
     output type: :string, presence: true
@@ -557,7 +557,7 @@ end
 
 **Custom Input Types:**
 ```ruby
-class UserForm < EasyForm::Base
+class UserForm < ActionForm::Base
   element :rating do
     input type: :text
     tags custom_input: "rating"
@@ -589,7 +589,7 @@ end
 
 **Dynamic Form Structure:**
 ```ruby
-class UserForm < EasyForm::Base
+class UserForm < ActionForm::Base
   element :name do
     input type: :text
     tags section: "basic"
@@ -618,7 +618,7 @@ The rendering system provides complete flexibility while maintaining the declara
 
 ### Element
 
-The `EasyForm::Element` class represents individual form elements and provides methods to access their data, control rendering, and customize behavior. Each element is bound to an object and can access its current values, errors, and HTML attributes.
+The `ActionForm::Element` class represents individual form elements and provides methods to access their data, control rendering, and customize behavior. Each element is bound to an object and can access its current values, errors, and HTML attributes.
 
 #### **Core Methods**
 
@@ -759,7 +759,7 @@ Elements go through several phases:
 4. **Validation** - Element values are validated during form submission
 
 ```ruby
-class UserForm < EasyForm::Base
+class UserForm < ActionForm::Base
   element :name do
     input type: :text
     output type: :string, presence: true
@@ -780,14 +780,14 @@ end
 
 ### Rails integration
 
-EasyForm provides seamless integration with Rails through `EasyForm::Rails::Base`, which extends the core functionality with Rails-specific features like automatic model binding, nested attributes, and Rails form helpers.
+ActionForm provides seamless integration with Rails through `ActionForm::Rails::Base`, which extends the core functionality with Rails-specific features like automatic model binding, nested attributes, and Rails form helpers.
 
 #### **Rails Form Class**
 
-Use `EasyForm::Rails::Base` instead of `EasyForm::Base` for Rails applications:
+Use `ActionForm::Rails::Base` instead of `ActionForm::Base` for Rails applications:
 
 ```ruby
-class UserForm < EasyForm::Rails::Base
+class UserForm < ActionForm::Rails::Base
   resource_model User
 
   element :name do
@@ -807,7 +807,7 @@ end
 The `resource_model` method automatically configures the form for your Rails model:
 
 ```ruby
-class UserForm < EasyForm::Rails::Base
+class UserForm < ActionForm::Rails::Base
   resource_model User  # Sets up automatic parameter scoping and model binding
 end
 
@@ -828,10 +828,10 @@ end
 
 #### **Parameter Scoping**
 
-EasyForm automatically handles Rails parameter scoping:
+ActionForm automatically handles Rails parameter scoping:
 
 ```ruby
-class UserForm < EasyForm::Rails::Base
+class UserForm < ActionForm::Rails::Base
   resource_model User  # Automatically scopes to 'user' parameters
 end
 
@@ -844,7 +844,7 @@ end
 You can also set custom scopes:
 
 ```ruby
-class AdminUserForm < EasyForm::Rails::Base
+class AdminUserForm < ActionForm::Rails::Base
   scope :admin_user  # Parameters will be scoped to params[:admin_user]
 end
 ```
@@ -854,7 +854,7 @@ end
 Rails integration automatically handles nested attributes for `many` relationships:
 
 ```ruby
-class UserForm < EasyForm::Rails::Base
+class UserForm < ActionForm::Rails::Base
   resource_model User
 
   element :name do
@@ -942,10 +942,10 @@ end
 
 #### **Error Handling**
 
-EasyForm integrates with Rails validation errors:
+ActionForm integrates with Rails validation errors:
 
 ```ruby
-class UserForm < EasyForm::Rails::Base
+class UserForm < ActionForm::Rails::Base
   resource_model User
 
   element :email do
@@ -979,12 +979,12 @@ end
 
 #### **Dynamic Form Buttons**
 
-EasyForm provides built-in methods for rendering add/remove buttons for dynamic `many` forms:
+ActionForm provides built-in methods for rendering add/remove buttons for dynamic `many` forms:
 
 **`render_new_subform_button`** - Renders a button to add new subform instances:
 
 ```ruby
-class UserForm < EasyForm::Rails::Base
+class UserForm < ActionForm::Rails::Base
   resource_model User
 
   many :addresses do
@@ -1018,7 +1018,7 @@ end
 **`render_remove_subform_button`** - Renders a button to remove subform instances:
 
 ```ruby
-class UserForm < EasyForm::Rails::Base
+class UserForm < ActionForm::Rails::Base
   resource_model User
 
   many :addresses do
@@ -1054,7 +1054,7 @@ end
 **Complete Dynamic Form Example:**
 
 ```ruby
-class UserForm < EasyForm::Rails::Base
+class UserForm < ActionForm::Rails::Base
   resource_model User
 
   many :addresses do
@@ -1140,7 +1140,7 @@ end
 
 **JavaScript Integration:**
 
-The buttons automatically integrate with EasyForm's JavaScript functions:
+The buttons automatically integrate with ActionForm's JavaScript functions:
 - `easyFormAddSubform(event)` - Adds new subform instances
 - `easyFormRemoveSubform(event)` - Removes or marks subforms for deletion
 
@@ -1158,7 +1158,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/easy_form. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/easy_form/blob/master/CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome on GitHub at https://github.com/andriy-baran/action_form. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/andriy-baran/action_form/blob/master/CODE_OF_CONDUCT.md).
 
 ## License
 
@@ -1166,4 +1166,4 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 ## Code of Conduct
 
-Everyone interacting in the EasyForm project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/easy_form/blob/master/CODE_OF_CONDUCT.md).
+Everyone interacting in the ActionForm project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/andriy-baran/action_form/blob/master/CODE_OF_CONDUCT.md).

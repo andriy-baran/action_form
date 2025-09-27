@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-module EasyForm
+module ActionForm
   module Rails
-    # Subform class for EasyForm that handles nested form structures.
+    # Subform class for ActionForm that handles nested form structures.
     # It allows building forms within forms, supporting has_one and has_many relationships.
     # Includes schema and element DSL functionality for defining form elements.
-    class Subform < EasyForm::Subform
+    class Subform < ActionForm::Subform
       class << self
         def add_primary_key_element
           return if elements.key?(:id)

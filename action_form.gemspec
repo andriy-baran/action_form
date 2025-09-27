@@ -1,23 +1,23 @@
 # frozen_string_literal: true
 
-require_relative "lib/easy_form/version"
+require_relative "lib/action_form/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "easy_form"
-  spec.version = EasyForm::VERSION
+  spec.name = "action_form"
+  spec.version = ActionForm::VERSION
   spec.authors = ["Andrii Baran"]
   spec.email = ["andriy.baran.v@gmail.com"]
 
-  spec.summary = "Easy form builder for Rails"
-  spec.description = "Easy form builder for Rails"
-  spec.homepage = "https://github.com/andriy-baran/easy_form"
+  spec.summary = "Action form builder for Rails"
+  spec.description = "Action form builder for Rails"
+  spec.homepage = "https://github.com/andriy-baran/action_form"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 2.7.0"
 
   spec.metadata["allowed_push_host"] = "https://rubygems.org"
   spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "https://github.com/andriy-baran/easy_form"
-  spec.metadata["changelog_uri"] = "https://github.com/andriy-baran/easy_form/blob/main/CHANGELOG.md"
+  spec.metadata["source_code_uri"] = "https://github.com/andriy-baran/action_form"
+  spec.metadata["changelog_uri"] = "https://github.com/andriy-baran/action_form/blob/main/CHANGELOG.md"
   spec.metadata["rubygems_mfa_required"] = "true"
 
   # Specify which files should be added to the gem when it is released.

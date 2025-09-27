@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-module EasyForm
-  # Base class for EasyForm components that provides form building functionality
+module ActionForm
+  # Base class for ActionForm components that provides form building functionality
   # and integrates with Phlex for HTML rendering.
   class Base < ::Phlex::HTML
-    include EasyForm::SchemaDSL
-    include EasyForm::ElementsDSL
-    include EasyForm::Rendering
+    include ActionForm::SchemaDSL
+    include ActionForm::ElementsDSL
+    include ActionForm::Rendering
 
     attr_reader :elements_instances, :scope, :object, :html_options, :errors
 
@@ -14,7 +14,7 @@ module EasyForm
       attr_writer :elements, :scope
 
       def subform_class
-        EasyForm::Subform
+        ActionForm::Subform
       end
 
       def scope(scope = nil)
@@ -42,12 +42,12 @@ module EasyForm
 
     def build_from_object
       self.class.elements.each do |name, element_definition|
-        if element_definition < EasyForm::SubformsCollection
+        if element_definition < ActionForm::SubformsCollection
           @elements_instances << build_many_subforms(name, element_definition)
           @elements_instances.last << build_subform_template(name, element_definition.subform_definition)
-        elsif element_definition < EasyForm::Subform
+        elsif element_definition < ActionForm::Subform
           @elements_instances << build_subform(name, element_definition)
-        elsif element_definition < EasyForm::Element
+        elsif element_definition < ActionForm::Element
           @elements_instances << element_definition.new(name, @params || @object, parent_name: @scope)
         end
       end

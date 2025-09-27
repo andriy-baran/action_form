@@ -8,7 +8,7 @@ SimpleCov.start do
   formatter SimpleCov::Formatter::JSONFormatter
 end
 
-require "easy_form"
+require "action_form"
 require "pry"
 
 RSpec.configure do |config|

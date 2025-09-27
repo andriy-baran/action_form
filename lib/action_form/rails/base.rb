@@ -2,16 +2,16 @@
 
 require "ostruct"
 
-module EasyForm
+module ActionForm
   module Rails
-    # RailsForm class for EasyForm that handles Rails-specific form rendering.
+    # RailsForm class for ActionForm that handles Rails-specific form rendering.
     # It integrates with Rails form helpers and provides a Rails-friendly interface
     # for building forms.
-    class Base < EasyForm::Base
-      include EasyForm::Rails::Rendering
+    class Base < ActionForm::Base
+      include ActionForm::Rails::Rendering
 
       def self.subform_class
-        EasyForm::Rails::Subform
+        ActionForm::Rails::Subform
       end
 
       attr_reader :namespaced_model

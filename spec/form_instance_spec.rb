@@ -63,7 +63,7 @@ class Info
   end
 end
 
-class FormObject < EasyForm::Rails::Base
+class FormObject < ActionForm::Rails::Base
   attr_accessor :helpers
 
   resource_model Info

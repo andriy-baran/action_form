@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-module EasyForm
-  # Subform class for EasyForm that handles nested form structures.
+module ActionForm
+  # Subform class for ActionForm that handles nested form structures.
   # It allows building forms within forms, supporting has_one and has_many relationships.
   # Includes schema and element DSL functionality for defining form elements.
   class Subform < ::Phlex::HTML
-    include EasyForm::Rendering
-    include EasyForm::SchemaDSL
-    include EasyForm::ElementsDSL
+    include ActionForm::Rendering
+    include ActionForm::SchemaDSL
+    include ActionForm::ElementsDSL
 
     class << self
       attr_accessor :default
