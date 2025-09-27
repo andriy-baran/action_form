@@ -88,7 +88,7 @@ module ActionForm
       value
     end
 
-    def input_html_attributes # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity
+    def input_html_attributes # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength
       attrs = self.class.input_options.dup
       attrs[:name] ||= html_name
       attrs[:id] ||= html_id
