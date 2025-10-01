@@ -2,6 +2,7 @@
 
 [![Maintainability](https://qlty.sh/gh/andriy-baran/projects/easy_params/maintainability.svg)](https://qlty.sh/gh/andriy-baran/projects/easy_params)
 [![Code Coverage](https://qlty.sh/gh/andriy-baran/projects/easy_params/coverage.svg)](https://qlty.sh/gh/andriy-baran/projects/easy_params)
+[![Gem Version](https://badge.fury.io/rb/action_form.svg)](https://badge.fury.io/rb/action_form)
 
 This library allows you to build complex forms in Ruby with a simple DSL. It provides:
 
