@@ -1,8 +1,8 @@
 PATH
   remote: .
   specs:
-    action_form (0.1.0)
-      easy_params (~> 0.6.3)
+    action_form (0.1.1)
+      easy_params (~> 0.7)
       phlex (>= 2)
       railties (>= 6.0.0)
 
@@ -53,7 +53,7 @@ GEM
     diff-lcs (1.6.2)
     docile (1.4.1)
     drb (2.2.3)
-    easy_params (0.6.3)
+    easy_params (0.7.0)
       activemodel (>= 3.2)
     erb (5.0.2)
     erubi (1.13.1)
