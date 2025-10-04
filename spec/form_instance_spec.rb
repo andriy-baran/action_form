@@ -211,7 +211,7 @@ RSpec.describe "FormObject" do
           '<input type="radio" class="form-control" name="info[car_attributes][maker_id]" id="info_car_attributes_maker_id" value="3">' \
         "</div>" \
         '<input type="hidden" autocomplete="off" name="info[car_attributes][id]" id="info_car_attributes_id" value="10">' \
-        '<script type="text/javascript">function easyFormRemoveSubform(event) {' \
+        '<script type="text/javascript">function actionFormRemoveSubform(event) {' \
         "\n  " \
         "event.preventDefault()" \
         "\n  " \
@@ -234,7 +234,7 @@ RSpec.describe "FormObject" do
         "}" \
         "\n" \
         "</script>" \
-        '<script type="text/javascript">function easyFormAddSubform(event) {' \
+        '<script type="text/javascript">function actionFormAddSubform(event) {' \
         "\n  " \
         "event.preventDefault()" \
         "\n  " \
@@ -380,7 +380,7 @@ RSpec.describe "FormObject" do
           '<input type="radio" class="form-control" name="info[car_attributes][maker_id]" id="info_car_attributes_maker_id" value="3">' \
         "</div>" \
         '<input type="hidden" autocomplete="off" name="info[car_attributes][id]" id="info_car_attributes_id" value="15">' \
-        '<script type="text/javascript">function easyFormRemoveSubform(event) {' \
+        '<script type="text/javascript">function actionFormRemoveSubform(event) {' \
         "\n  " \
         "event.preventDefault()" \
         "\n  " \
@@ -403,7 +403,7 @@ RSpec.describe "FormObject" do
         "}" \
         "\n" \
         "</script>" \
-        '<script type="text/javascript">function easyFormAddSubform(event) {' \
+        '<script type="text/javascript">function actionFormAddSubform(event) {' \
         "\n  " \
         "event.preventDefault()" \
         "\n  " \
@@ -536,7 +536,7 @@ RSpec.describe "FormObject" do
       '<div class="error-messages">can&#39;t be blank</div>' \
     "</div>" \
     '<input type="hidden" autocomplete="off" name="info[car_attributes][id]" id="info_car_attributes_id" value="15">' \
-    '<script type="text/javascript">function easyFormRemoveSubform(event) {' \
+    '<script type="text/javascript">function actionFormRemoveSubform(event) {' \
     "\n  " \
     "event.preventDefault()" \
     "\n  " \
@@ -559,7 +559,7 @@ RSpec.describe "FormObject" do
     "}" \
     "\n" \
     "</script>" \
-    '<script type="text/javascript">function easyFormAddSubform(event) {' \
+    '<script type="text/javascript">function actionFormAddSubform(event) {' \
     "\n  " \
     "event.preventDefault()" \
     "\n  " \
@@ -823,7 +823,7 @@ RSpec.describe "FormObject" do
         '<div class="col-md-9">' \
           '<input type="text" class="form-control" name="complex_info[name]" id="complex_info_name" value="John Doe">' \
         "</div>" \
-        '<script type="text/javascript">function easyFormRemoveSubform(event) {' \
+        '<script type="text/javascript">function actionFormRemoveSubform(event) {' \
         "\n  " \
         "event.preventDefault()" \
         "\n  " \
@@ -846,7 +846,7 @@ RSpec.describe "FormObject" do
         "}" \
         "\n" \
         "</script>" \
-        '<script type="text/javascript">function easyFormAddSubform(event) {' \
+        '<script type="text/javascript">function actionFormAddSubform(event) {' \
         "\n  " \
         "event.preventDefault()" \
         "\n  " \
@@ -933,7 +933,7 @@ RSpec.describe "FormObject" do
             "</div>" \
           "</div>" \
         "</template>" \
-        '<script type="text/javascript">function easyFormRemoveSubform(event) {' \
+        '<script type="text/javascript">function actionFormRemoveSubform(event) {' \
         "\n  " \
         "event.preventDefault()" \
         "\n  " \
@@ -956,7 +956,7 @@ RSpec.describe "FormObject" do
         "}" \
         "\n" \
         "</script>" \
-        '<script type="text/javascript">function easyFormAddSubform(event) {' \
+        '<script type="text/javascript">function actionFormAddSubform(event) {' \
         "\n  " \
         "event.preventDefault()" \
         "\n  " \
@@ -1046,7 +1046,7 @@ RSpec.describe "FormObject" do
             "</div>" \
           "</div>" \
         "</template>" \
-        '<script type="text/javascript">function easyFormRemoveSubform(event) {' \
+        '<script type="text/javascript">function actionFormRemoveSubform(event) {' \
         "\n  " \
         "event.preventDefault()" \
         "\n  " \
@@ -1069,7 +1069,7 @@ RSpec.describe "FormObject" do
         "}" \
         "\n" \
         "</script>" \
-        '<script type="text/javascript">function easyFormAddSubform(event) {' \
+        '<script type="text/javascript">function actionFormAddSubform(event) {' \
         "\n  " \
         "event.preventDefault()" \
         "\n  " \

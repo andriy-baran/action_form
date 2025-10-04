@@ -55,11 +55,11 @@ module ActionForm
     end
 
     def render_remove_subform_button(**html_attributes, &block)
-      a(**html_attributes, onclick: safe("easyFormRemoveSubform(event)"), &block)
+      a(**html_attributes, onclick: safe("actionFormRemoveSubform(event)"), &block)
     end
 
     def render_new_subform_button(**html_attributes, &block)
-      a(**html_attributes, onclick: safe("easyFormAddSubform(event)"), &block)
+      a(**html_attributes, onclick: safe("actionFormAddSubform(event)"), &block)
     end
 
     private

@@ -44,7 +44,7 @@ module ActionForm
 
     def add_subform_js
       <<~JS
-        function easyFormAddSubform(event) {
+        function actionFormAddSubform(event) {
           event.preventDefault()
           var template = document.querySelector("##{template_html_id}")
           const content = template.innerHTML.replace(/NEW_RECORD/g, new Date().getTime().toString())
@@ -60,7 +60,7 @@ module ActionForm
 
     def remove_subform_js
       <<~JS
-        function easyFormRemoveSubform(event) {
+        function actionFormRemoveSubform(event) {
           event.preventDefault()
           var subform = event.target.closest(".new_#{name}")
           if (subform) { subform.remove() }
