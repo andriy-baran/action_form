@@ -18,6 +18,8 @@ module ActionForm
     end
 
     class << self
+      attr_reader :default
+
       def label_options
         @label_options ||= [{ text: nil, display: true }, {}]
       end
@@ -38,7 +40,8 @@ module ActionForm
         @tags_list ||= {}
       end
 
-      def input(type:, **options)
+      def input(type:, default: nil, **options)
+        @default = default
         @input_options = { type: type }.merge(options)
         tags_list.merge!(input: type)
       end
@@ -104,9 +107,9 @@ module ActionForm
     end
 
     def value
-      return unless object
+      return self.class.default unless object
 
-      object.public_send(name)
+      object.public_send(name) || self.class.default
     end
 
     def render?

@@ -101,7 +101,8 @@ module ActionForm
     def build_subform_template(name, form_definition)
       html_name = subform_html_name(name, index: "NEW_RECORD")
       elements_keys = form_definition.elements.keys.push(:persisted?)
-      value = Struct.new(*elements_keys).new
+      values = form_definition.elements.values.map(&:default)
+      value = Struct.new(*elements_keys).new(*values)
       form_definition.new(name: name, scope: html_name, model: value, template: true).tap do |subform|
         subform.helpers = helpers
       end
