@@ -101,6 +101,17 @@ class FormObject < ActionForm::Rails::Base
       end
     end
 
+    element :color do
+      input(type: :select, class: "form-control")
+      output(type: :string, presence: true)
+      label(text: "Color", class: "form-label")
+      options([%w[Red red], %w[Green green], %w[Blue blue]])
+
+      def render?
+        false
+      end
+    end
+
     def render_element(element)
       div(class: "col-md-3") do
         render_label(element)
@@ -312,8 +323,8 @@ RSpec.describe "FormObject" do
     form.helpers = ViewHelpers.new
     html = form.call
     expect(html).to eq(expected_html)
-    schema = form.class.params_definition.new(info: { birthdate: "1990-01-01", biography: true, interests: [1, 3], pets_attributes: [{ id: 1 }, { id: 2 }],
-                                                      car_attributes: { id: 10, maker_id: 1 } })
+    schema = form.params_definition.new(info: { birthdate: "1990-01-01", biography: true, interests: [1, 3], pets_attributes: [{ id: 1 }, { id: 2 }],
+                                                car_attributes: { id: 10, maker_id: 1 } })
     expect(schema.info.birthdate).to eq(Date.parse("1990-01-01"))
     expect(schema.info.biography).to eq(true)
     expect(schema.info.interests.to_a).to eq([1, 3])
