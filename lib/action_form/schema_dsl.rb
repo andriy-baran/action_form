@@ -13,7 +13,16 @@ module ActionForm
         EasyParams::Base
       end
 
-      def params_definition(*) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+      def params_definition(*)
+        @params_definition ||= create_params_definition
+      end
+
+      def params(&block)
+        @params_definition = create_params_definition(&block)
+        @params_definition.class_eval(&block) if block
+      end
+
+      def create_params_definition # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         schema = Class.new(params_class)
         elements.each do |name, element_definition|
           if element_definition < ActionForm::SubformsCollection
@@ -40,7 +49,11 @@ module ActionForm
     end
 
     module InstanceMethods # rubocop:disable Style/Documentation
-      def params_definition(*) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+      def params_definition(*)
+        @params_definition ||= create_params_definition
+      end
+
+      def create_params_definition # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         schema = Class.new(self.class.params_class)
         elements_instances.select(&:render?).each do |element|
           case element
