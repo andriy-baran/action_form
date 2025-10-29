@@ -8,6 +8,7 @@ This library allows you to build complex forms in Ruby with a simple DSL. It pro
 
 - A clean, declarative syntax for defining form fields and validations
 - Support for nested forms
+- Custom parameter validation with the `params` method
 - Automatic form rendering with customizable HTML/CSS
 - Built-in error handling and validation
 - Integration with Rails and other Ruby web frameworks
@@ -61,6 +62,7 @@ ActionForm is built around a modular architecture that separates form definition
 
 - **Declarative DSL**: Define forms with simple, readable syntax
 - **Nested Forms**: Support for complex nested structures with `subform` and `many`
+- **Custom Parameter Validation**: Use the `params` method to add custom validation logic and schema modifications
 - **Dynamic Collections**: JavaScript-powered add/remove functionality for many relationships
 - **Flexible Rendering**: Each element can be configured with custom input types, labels, and HTML attributes
 - **Error Integration**: Built-in support for displaying validation errors
@@ -86,6 +88,7 @@ ActionForm follows a bidirectional data flow pattern that handles both form disp
 #### **Key Benefits:**
 - **Single Source of Truth**: The same form definition handles both displaying existing data and processing new data
 - **Automatic Parameter Handling**: [EasyParams](https://github.com/andriy-baran/easy_params) classes are automatically generated to mirror your form structure
+- **Custom Parameter Validation**: Use the `params` method to add custom validation logic and schema modifications
 - **Error Integration**: Failed validations can re-render the form with submitted data and error messages
 - **Nested Support**: Both phases support complex nested structures through `subform` and `many` relationships
 
@@ -249,6 +252,166 @@ class UserForm < ActionForm::Base
   end
 end
 ```
+
+### Custom Parameter Validation
+
+ActionForm provides a `params` method that allows you to add custom validation logic and schema modifications to your form's parameter handling. This is particularly useful for complex validation rules that depend on context or require cross-field validation.
+
+#### **Basic Usage**
+
+Use the `params` method to define custom validation logic:
+
+```ruby
+class UserForm < ActionForm::Base
+  element :email do
+    input type: :email
+    output type: :string, presence: true
+  end
+
+  element :password do
+    input type: :password
+    output type: :string
+  end
+
+  element :password_confirmation do
+    input type: :password
+    output type: :string
+  end
+
+  # Custom parameter validation
+  params do
+    validates :password, presence: true
+    validates :password_confirmation, presence: true
+    validates :password, confirmation: true
+  end
+end
+```
+
+#### **Conditional Validation**
+
+You can add conditional validation logic based on context:
+
+```ruby
+class UserForm < ActionForm::Base
+  element :email do
+    input type: :email
+    output type: :string, presence: true
+  end
+
+  element :password do
+    input type: :password
+    output type: :string
+  end
+
+  # Conditional validation based on external context
+  params do
+    secure_mode = true  # This could come from configuration or request context
+
+    validates :password, presence: true, if: -> { secure_mode }
+    validates :password, length: { minimum: 8 }, if: -> { secure_mode }
+  end
+end
+```
+
+#### **Nested Form Validation**
+
+The `params` method also supports validation for nested forms using schema blocks:
+
+```ruby
+class UserForm < ActionForm::Base
+  element :email do
+    input type: :email
+    output type: :string, presence: true
+  end
+
+  subform :profile, default: {} do
+    element :name do
+      input type: :text
+      output type: :string
+    end
+  end
+
+  many :addresses, default: [{}] do
+    subform do
+      element :street do
+        input type: :text
+        output type: :string
+      end
+
+      element :city do
+        input type: :text
+        output type: :string
+      end
+    end
+  end
+
+  params do
+    # Validate nested subform
+    profile_attributes_schema do
+      validates :name, presence: true
+    end
+
+    # Validate nested collection
+    addresses_attributes_schema do
+      validates :street, presence: true
+      validates :city, presence: true
+    end
+  end
+end
+```
+
+#### **Dynamic Form Classes**
+
+You can create dynamic form classes with different validation rules:
+
+```ruby
+class BaseUserForm < ActionForm::Base
+  element :email do
+    input type: :email
+    output type: :string, presence: true
+  end
+
+  element :password do
+    input type: :password
+    output type: :string
+  end
+end
+
+# Create a secure version with additional validation
+SecureUserForm = Class.new(BaseUserForm)
+SecureUserForm.params do
+  validates :password, presence: true, length: { minimum: 8 }
+  validates :password, format: { with: /\A(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/ }
+end
+
+# Create a basic version with minimal validation
+BasicUserForm = Class.new(BaseUserForm)
+BasicUserForm.params do
+  validates :password, presence: true
+end
+```
+
+#### **Integration with Controllers**
+
+The custom parameter validation integrates seamlessly with your controllers:
+
+```ruby
+class UsersController < ApplicationController
+  def create
+    user_params = UserForm.params_definition.new(params)
+
+    if user_params.valid?
+      @user = User.create!(user_params.to_h)
+      redirect_to @user
+    else
+      @form = @form.with_params(user_params)
+      render :new
+    end
+  end
+end
+```
+
+The `params` method provides a powerful way to extend ActionForm's parameter handling with custom validation logic while maintaining the declarative nature of form definition.
 
 ### Tagging system
 
@@ -800,6 +963,22 @@ class UserForm < ActionForm::Rails::Base
     input type: :email
     output type: :string, presence: true
   end
+
+  element :password do
+    input type: :password
+    output type: :string
+  end
+
+  element :password_confirmation do
+    input type: :password
+    output type: :string
+  end
+
+  # Custom parameter validation for Rails integration
+  params do
+    validates :password, presence: true, length: { minimum: 6 }
+    validates :password, confirmation: true
+  end
 end
 ```
 
@@ -910,6 +1089,7 @@ class UsersController < ApplicationController
       @user = User.create!(user_params.user.to_h)
       redirect_to @user
     else
+      # Custom validation errors are automatically available
       @form = @form.with_params(user_params)
       render :new
     end
@@ -927,6 +1107,7 @@ class UsersController < ApplicationController
       @user.update!(user_params.user.to_h)
       redirect_to @user
     else
+      # Custom validation errors (like password confirmation) are displayed
       @form = @form.with_params(user_params)
       render :edit
     end
