@@ -413,6 +413,214 @@ end
 
 The `params` method provides a powerful way to extend ActionForm's parameter handling with custom validation logic while maintaining the declarative nature of form definition.
 
+### Modifying Element Definitions
+
+ActionForm allows you to modify existing element, subform, and `many` definitions after they have been declared. This feature enables you to extend or customize form definitions without altering the original class structure, making it perfect for conditional modifications, inheritance patterns, and dynamic form customization.
+
+#### **Modifying Elements**
+
+Use the `{element_name}_element` method to modify an existing element definition:
+
+```ruby
+class UserForm < ActionForm::Base
+  element :email do
+    input type: :email
+    output type: :string
+  end
+
+  element :password do
+    input type: :password
+    output type: :string
+  end
+end
+
+# Modify existing element definitions
+UserForm.email_element do
+  output type: :string, presence: true, format: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
+end
+
+UserForm.password_element do
+  output type: :string, presence: true, length: { minimum: 8 }
+end
+```
+
+#### **Modifying Subforms**
+
+Use the `{subform_name}_subform` method to modify an existing subform definition:
+
+```ruby
+class UserForm < ActionForm::Base
+  subform :profile do
+    element :bio do
+      input type: :textarea
+      output type: :string
+    end
+  end
+end
+
+# Modify the subform to add validation or change defaults
+UserForm.profile_subform default: {} do
+  bio_element do
+    output type: :string, presence: true
+  end
+
+  # You can also add new elements
+  element :avatar do
+    input type: :file
+    output type: :string
+  end
+end
+```
+
+#### **Modifying Many Relationships**
+
+Use the `{many_name}_subforms` method to modify an existing `many` definition:
+
+```ruby
+class OrderForm < ActionForm::Base
+  many :items do
+    subform do
+      element :name do
+        input type: :text
+        output type: :string
+      end
+
+      element :quantity do
+        input type: :number
+        output type: :integer
+      end
+    end
+  end
+end
+
+# Modify the many relationship to add validation or change defaults
+OrderForm.items_subforms default: [{}] do
+  subform do
+    name_element do
+      output type: :string, presence: true
+    end
+
+    quantity_element do
+      output type: :integer, presence: true, inclusion: { in: 1..100 }
+    end
+
+    # Add new elements to existing many subforms
+    element :price do
+      input type: :number
+      output type: :float, presence: true
+    end
+  end
+end
+```
+
+#### **Inheritance and Modifications**
+
+Element modifications work seamlessly with class inheritance:
+
+```ruby
+class BaseForm < ActionForm::Base
+  element :name do
+    input type: :text
+    output type: :string
+  end
+end
+
+class UserForm < BaseForm
+  element :email do
+    input type: :email
+    output type: :string
+  end
+end
+
+# Modify inherited elements
+UserForm.name_element do
+  output type: :string, presence: true
+end
+
+# Modify elements defined in subclass
+UserForm.email_element do
+  output type: :string, presence: true
+end
+```
+
+Here's a complete example showing element modifications in action:
+
+```ruby
+class OrderForm < ActionForm::Base
+  element :name do
+    input(type: :text)
+    output(type: :string)
+  end
+
+  subform :customer do
+    element :name do
+      input(type: :text)
+      output(type: :string)
+    end
+  end
+
+  many :items do
+    subform do
+      element :name do
+        input(type: :text)
+        output(type: :string)
+      end
+
+      element :quantity do
+        input(type: :number)
+        output(type: :integer)
+      end
+
+      element :price do
+        input(type: :number)
+        output(type: :float)
+      end
+    end
+  end
+end
+
+# Apply modifications to add validation
+secure = true
+
+OrderForm.name_element do
+  output(type: :string, presence: true, if: -> { secure })
+end
+
+OrderForm.customer_subform default: {} do
+  name_element do
+    output(type: :string, presence: true, if: -> { secure })
+  end
+end
+
+OrderForm.items_subforms default: [{}] do
+  subform do
+    name_element do
+      output(type: :string, presence: true, if: -> { secure })
+    end
+    quantity_element do
+      output(type: :integer, presence: true, if: -> { secure })
+    end
+    price_element do
+      output(type: :float, presence: true, if: -> { secure })
+    end
+  end
+end
+
+# Now the form has validation enabled
+params = OrderForm.params_definition.new({})
+expect(params).to be_invalid
+```
+
+#### **Key Benefits**
+
+- **Non-Destructive**: Modify form definitions without changing the original class
+- **Conditional Logic**: Apply modifications based on runtime conditions
+- **Inheritance Support**: Works seamlessly with class inheritance
+- **Flexible Extension**: Add validation, change defaults, or add new elements to existing definitions
+- **Reusability**: Create base forms and customize them for specific use cases
+
+This feature provides a powerful way to customize and extend form definitions while maintaining the declarative nature of ActionForm.
+
 ### Tagging system
 
 ActionForm includes a flexible tagging system that allows you to add custom metadata to form elements and control rendering behavior. Tags serve multiple purposes:

@@ -26,6 +26,9 @@ module ActionForm
       def element(name, &block)
         elements[name] = Class.new(ActionForm::Element)
         elements[name].class_eval(&block)
+        define_singleton_method(:"#{name}_element") do |klass = nil, &block|
+          update_element_definition(name, klass, &block)
+        end
       end
 
       def many(name, default: nil, &block)
@@ -34,11 +37,25 @@ module ActionForm
         subform_definition.class_eval(&block) if block
         elements[name] = subform_definition
         elements[name].default = default if default
+        define_singleton_method(:"#{name}_subforms") do |klass = nil, default: nil, &block|
+          update_element_definition(name, klass, default: default, &block)
+        end
       end
 
       def subform(name, default: nil, &block)
         elements[name] = Class.new(subform_class)
         elements[name].class_eval(&block)
+        elements[name].default = default if default
+        define_singleton_method(:"#{name}_subform") do |klass = nil, default: nil, &block|
+          update_element_definition(name, klass, default: default, &block)
+        end
+      end
+
+      private
+
+      def update_element_definition(name, klass = nil, default: nil, &block)
+        elements[name] = klass if klass
+        elements[name] = Class.new(elements[name], &block) if block
         elements[name].default = default if default
       end
     end
