@@ -621,6 +621,313 @@ expect(params).to be_invalid
 
 This feature provides a powerful way to customize and extend form definitions while maintaining the declarative nature of ActionForm.
 
+### Composition and Owner Delegation
+
+ActionForm includes a composition system that allows form components (elements, subforms, and `many` collections) to access methods from their owner (typically the parent form or a custom host object). This promotes code reuse and reduces redundancy by allowing shared logic to be defined in a central location and accessed by multiple form components.
+
+#### **How Composition Works**
+
+When you create a form, all nested elements and subforms automatically have access to their owner through the `owner` accessor. Methods called on elements or subforms that are not defined locally are automatically delegated up the ownership chain, allowing you to access methods from the parent form or a custom host object.
+
+#### **Automatic Ownership Chain**
+
+Ownership is automatically established when forms are built:
+
+```ruby
+class ProductForm < ActionForm::Base
+  element :name do
+    input(type: :text)
+    output(type: :string)
+
+    # This method can call methods on the owner (ProductForm)
+    def render?
+      name_render?  # Delegates to owner.name_render?
+    end
+  end
+
+  many :variants, default: [{}] do
+    subform do
+      element :name do
+        input(type: :text)
+        output(type: :string)
+
+        def render?
+          variants_name_render?  # Delegates to owner.variants_name_render?
+        end
+      end
+
+      def render?
+        variants_subform_render?  # Delegates to owner.variants_subform_render?
+      end
+    end
+  end
+
+  subform :manufacturer, default: {} do
+    element :name do
+      input(type: :text)
+      output(type: :string)
+
+      def render?
+        manufacturer_name_render?  # Delegates to owner.manufacturer_name_render?
+      end
+    end
+  end
+
+  # Methods accessible by nested components
+  def name_render?
+    true
+  end
+
+  def variants_name_render?
+    true
+  end
+
+  def variants_subform_render?
+    true
+  end
+
+  def manufacturer_name_render?
+    true
+  end
+end
+```
+
+#### **Custom Host Object**
+
+You can pass a custom host object when initializing a form, allowing you to separate form logic from business logic:
+
+```ruby
+class HostObject
+  def name_render?
+    current_user.admin? || form_context == :edit
+  end
+
+  def variants_subform_render?
+    feature_enabled?(:variants)
+  end
+
+  def variants_name_render?
+    true
+  end
+
+  def variants_price_render?
+    pricing_enabled?
+  end
+
+  def manufacturer_name_render?
+    manufacturer_feature_enabled?
+  end
+end
+
+class ProductForm < ActionForm::Base
+  element :name do
+    input(type: :text)
+    output(type: :string)
+
+    def render?
+      name_render?  # Calls HostObject#name_render?
+    end
+  end
+
+  many :variants, default: [{}] do
+    subform do
+      element :name do
+        input(type: :text)
+        output(type: :string)
+
+        def render?
+          variants_name_render?  # Calls HostObject#variants_name_render?
+        end
+      end
+
+      element :price do
+        input(type: :number)
+        output(type: :float)
+
+        def render?
+          variants_price_render?  # Calls HostObject#variants_price_render?
+        end
+      end
+
+      def render?
+        variants_subform_render?  # Calls HostObject#variants_subform_render?
+      end
+    end
+  end
+
+  subform :manufacturer, default: {} do
+    element :name do
+      input(type: :text)
+      output(type: :string)
+
+      def render?
+        manufacturer_name_render?  # Calls HostObject#manufacturer_name_render?
+      end
+    end
+  end
+end
+
+# Use the form with a custom host object
+host = HostObject.new
+product = Product.new(name: "Product 1")
+form = ProductForm.new(object: product, owner: host)
+```
+
+#### **Ownership Chain Traversal**
+
+The composition system supports multi-level ownership chains. When a method is called on an element or subform, it searches up the ownership chain until it finds the method:
+
+```ruby
+class GrandparentForm < ActionForm::Base
+  def shared_helper
+    "grandparent"
+  end
+end
+
+class ParentForm < ActionForm::Base
+  def shared_helper
+    "parent"
+  end
+end
+
+class ChildForm < ActionForm::Base
+  element :field do
+    input(type: :text)
+
+    def render?
+      shared_helper  # Will find ParentForm#shared_helper first
+    end
+  end
+end
+
+# If ChildForm has ParentForm as owner, and ParentForm has GrandparentForm as owner:
+# The method lookup order is: ChildForm -> ParentForm -> GrandparentForm
+```
+
+#### **Accessing Owner Directly**
+
+You can access the owner directly using the `owner` accessor:
+
+```ruby
+class ProductForm < ActionForm::Base
+  element :discount_code do
+    input(type: :text)
+    output(type: :string)
+
+    def disabled?
+      # Access owner's methods directly
+      owner.current_user && !owner.current_user.admin?
+    end
+
+    def placeholder
+      owner.discount_placeholder_text
+    end
+  end
+
+  def current_user
+    @current_user ||= User.find(session[:user_id])
+  end
+
+  def discount_placeholder_text
+    "Enter discount code"
+  end
+end
+```
+
+#### **Ownership Hierarchy**
+
+The ownership hierarchy is automatically established as follows:
+
+- **Top-level form**: Can have a custom `owner` passed during initialization
+- **Elements**: Owner is the form or subform that contains them
+- **Subforms**: Owner is the form that contains them
+- **SubformsCollection (many)**: Owner is the form that contains them
+- **Nested elements in subforms**: Owner is the subform that contains them
+- **Nested subforms**: Owner is the parent form or subform
+
+#### **Practical Use Cases**
+
+**Conditional Rendering Based on Context:**
+```ruby
+class OrderForm < ActionForm::Base
+  element :admin_notes do
+    input(type: :textarea)
+    output(type: :string)
+
+    def render?
+      owner.current_user&.admin?
+    end
+  end
+
+  def current_user
+    @current_user
+  end
+end
+```
+
+**Shared Validation Logic:**
+```ruby
+class RegistrationForm < ActionForm::Base
+  element :email do
+    input(type: :email)
+    output(type: :string)
+
+    def disabled?
+      owner.email_locked?
+    end
+  end
+
+  element :email_confirmation do
+    input(type: :email)
+    output(type: :string)
+
+    def disabled?
+      owner.email_locked?
+    end
+  end
+
+  def email_locked?
+    @user.persisted? && @user.email_verified?
+  end
+end
+```
+
+**Feature Flags:**
+```ruby
+class SettingsForm < ActionForm::Base
+  many :advanced_settings do
+    subform do
+      element :feature_flag do
+        input(type: :checkbox)
+        output(type: :bool)
+
+        def render?
+          owner.feature_enabled?(:advanced_settings)
+        end
+      end
+    end
+
+    def render?
+      owner.feature_enabled?(:advanced_settings)
+    end
+  end
+
+  def feature_enabled?(feature)
+    FeatureFlags.enabled?(feature, current_user)
+  end
+end
+```
+
+#### **Benefits**
+
+- **Code Reuse**: Share common logic across multiple form components
+- **Separation of Concerns**: Keep business logic in host objects, form logic in forms
+- **Flexibility**: Support conditional rendering and behavior based on context
+- **Maintainability**: Centralize shared logic instead of duplicating it
+- **Testability**: Test host objects separately from form definitions
+
+The composition system provides a powerful mechanism for creating flexible, maintainable forms that can adapt to different contexts and requirements.
+
 ### Tagging system
 
 ActionForm includes a flexible tagging system that allows you to add custom metadata to form elements and control rendering behavior. Tags serve multiple purposes:

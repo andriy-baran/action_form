@@ -7,6 +7,7 @@ module ActionForm
     include ActionForm::SchemaDSL
     include ActionForm::ElementsDSL
     include ActionForm::Rendering
+    include ActionForm::Composition
 
     attr_reader :elements_instances, :scope, :object, :html_options, :errors
 
@@ -30,13 +31,14 @@ module ActionForm
       end
     end
 
-    def initialize(object: nil, scope: self.class.scope, params: nil, **html_options)
+    def initialize(object: nil, scope: self.class.scope, params: nil, owner: nil, **html_options)
       super()
       @object = object
       @scope ||= scope
       @params = @scope && params.respond_to?(@scope) ? params.public_send(@scope) : params
       @html_options = html_options
       @elements_instances = []
+      @owner = owner
       build_from_object
     end
 
@@ -48,7 +50,7 @@ module ActionForm
         elsif element_definition < ActionForm::Subform
           @elements_instances << build_subform(name, element_definition)
         elsif element_definition < ActionForm::Element
-          @elements_instances << element_definition.new(name, @params || @object, parent_name: @scope)
+          @elements_instances << element_definition.new(name, @params || @object, parent_name: @scope, owner: self)
         end
       end
     end
@@ -73,6 +75,7 @@ module ActionForm
 
     def build_many_subforms(name, collection_definition)
       collection = collection_definition.new(name)
+      collection.owner = self
       Array(subform_value(name)).each.with_index do |item, index|
         collection << build_subform(name, collection_definition.subform_definition, value: item, index: index)
       end
@@ -93,7 +96,8 @@ module ActionForm
 
     def build_subform(name, form_definition, value: subform_value(name), index: nil)
       html_name = subform_html_name(name, index: index)
-      form_definition.new(name: name, scope: html_name, model: value, index: index).tap do |subform|
+      form_definition.new(name: name, scope: html_name, model: value, index: index,
+                          owner: self).tap do |subform|
         subform.helpers = helpers
       end
     end
@@ -103,7 +107,8 @@ module ActionForm
       elements_keys = form_definition.elements.keys.push(:persisted?)
       values = form_definition.elements.values.map(&:default)
       value = Struct.new(*elements_keys).new(*values)
-      form_definition.new(name: name, scope: html_name, model: value, template: true).tap do |subform|
+      form_definition.new(name: name, scope: html_name, model: value, template: true,
+                          owner: self).tap do |subform|
         subform.helpers = helpers
       end
     end
