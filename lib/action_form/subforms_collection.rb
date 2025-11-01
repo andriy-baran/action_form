@@ -12,12 +12,18 @@ module ActionForm
     attr_accessor :helpers
 
     class << self
-      attr_reader :subform_definition
-      attr_accessor :default, :host_class
+      attr_accessor :default, :host_class, :subform_definition
 
       def subform(subform_class = nil, &block)
-        @subform_definition = subform_class || Class.new(host_class.subform_class)
+        @subform_definition ||= subform_class || Class.new(host_class.subform_class)
         @subform_definition.class_eval(&block) if block
+      end
+
+      def inherited(subclass)
+        super
+        subclass.subform_definition = subform_definition
+        subclass.default = default
+        subclass.host_class = host_class
       end
     end
 

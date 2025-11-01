@@ -11,6 +11,13 @@ module ActionForm
 
     class << self
       attr_accessor :default
+      attr_writer :elements
+
+      def inherited(subclass)
+        super
+        subclass.elements = elements.dup
+        subclass.default = default.dup
+      end
     end
 
     attr_reader :elements_instances, :tags, :name, :object
