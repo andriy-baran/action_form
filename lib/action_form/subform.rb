@@ -8,6 +8,7 @@ module ActionForm
     include ActionForm::Rendering
     include ActionForm::SchemaDSL
     include ActionForm::ElementsDSL
+    include ActionForm::Composition
 
     class << self
       attr_accessor :default
@@ -23,7 +24,7 @@ module ActionForm
     attr_reader :elements_instances, :tags, :name, :object
     attr_accessor :helpers
 
-    def initialize(name:, scope: nil, model: nil, params: nil, **tags)
+    def initialize(name:, scope: nil, model: nil, params: nil, owner: nil, **tags) # rubocop:disable Metrics/ParameterLists
       super()
       @name = name
       @scope = scope
@@ -31,6 +32,7 @@ module ActionForm
       @params = params
       @elements_instances = []
       @tags = tags
+      @owner = owner
       build_from_object
     end
 
@@ -38,6 +40,7 @@ module ActionForm
       self.class.elements.each do |element_name, element_definition|
         @elements_instances << element_definition.new(element_name, @params || @object, parent_name: @scope)
         @elements_instances.last.tags.merge!(subform: @name)
+        @elements_instances.last.owner = self
       end
     end
 

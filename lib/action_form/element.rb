@@ -4,10 +4,12 @@ module ActionForm
   # Represents a form element with input/output configuration and HTML attributes
   # rubocop:disable Metrics/ClassLength
   class Element
+    include ActionForm::Composition
+
     attr_reader :name, :input_options, :output_options, :html_name, :html_id, :select_options, :tags, :errors_messages
     attr_accessor :helpers
 
-    def initialize(name, object, parent_name: nil)
+    def initialize(name, object, parent_name: nil, owner: nil)
       @name = name
       @object = object
       @html_name = build_html_name(name, parent_name)
@@ -15,6 +17,7 @@ module ActionForm
       @tags = self.class.tags_list.dup
       @errors_messages = extract_errors_messages(object, name)
       tags.merge!(errors: errors_messages.any?)
+      @owner = owner
     end
 
     class << self

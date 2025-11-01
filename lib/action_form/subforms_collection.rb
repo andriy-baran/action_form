@@ -5,6 +5,7 @@ module ActionForm
   class SubformsCollection < ::Phlex::HTML
     extend Forwardable
     include ActionForm::Rendering
+    include ActionForm::Composition
 
     def_delegators :@subforms, :last, :first, :length, :size, :[], :<<
 
