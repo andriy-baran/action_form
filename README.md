@@ -627,7 +627,7 @@ ActionForm includes a composition system that allows form components (elements, 
 
 #### **How Composition Works**
 
-When you create a form, all nested elements and subforms automatically have access to their owner through the `owner` accessor. Methods called on elements or subforms that are not defined locally are automatically delegated up the ownership chain, allowing you to access methods from the parent form or a custom host object.
+When you create a form, all nested elements and subforms automatically have access to their owner through the `owner` accessor. To delegate methods to the owner, you must prefix method calls with `owner_`. The `owner_` prefix is automatically stripped, and the method is then searched for on the ownership chain, allowing you to access methods from the parent form or a custom host object.
 
 #### **Automatic Ownership Chain**
 
@@ -639,9 +639,9 @@ class ProductForm < ActionForm::Base
     input(type: :text)
     output(type: :string)
 
-    # This method can call methods on the owner (ProductForm)
+    # Use owner_ prefix to delegate to owner's method
     def render?
-      name_render?  # Delegates to owner.name_render?
+      owner_name_render?  # Delegates to owner.name_render?
     end
   end
 
@@ -652,12 +652,12 @@ class ProductForm < ActionForm::Base
         output(type: :string)
 
         def render?
-          variants_name_render?  # Delegates to owner.variants_name_render?
+          owner_variants_name_render?  # Delegates to owner.variants_name_render?
         end
       end
 
       def render?
-        variants_subform_render?  # Delegates to owner.variants_subform_render?
+        owner_variants_subform_render?  # Delegates to owner.variants_subform_render?
       end
     end
   end
@@ -668,12 +668,12 @@ class ProductForm < ActionForm::Base
       output(type: :string)
 
       def render?
-        manufacturer_name_render?  # Delegates to owner.manufacturer_name_render?
+        owner_manufacturer_name_render?  # Delegates to owner.manufacturer_name_render?
       end
     end
   end
 
-  # Methods accessible by nested components
+  # Methods accessible by nested components via owner_ prefix
   def name_render?
     true
   end
@@ -725,7 +725,7 @@ class ProductForm < ActionForm::Base
     output(type: :string)
 
     def render?
-      name_render?  # Calls HostObject#name_render?
+      owner_name_render?  # Calls HostObject#name_render? via owner_ prefix
     end
   end
 
@@ -736,7 +736,7 @@ class ProductForm < ActionForm::Base
         output(type: :string)
 
         def render?
-          variants_name_render?  # Calls HostObject#variants_name_render?
+          owner_variants_name_render?  # Calls HostObject#variants_name_render?
         end
       end
 
@@ -745,12 +745,12 @@ class ProductForm < ActionForm::Base
         output(type: :float)
 
         def render?
-          variants_price_render?  # Calls HostObject#variants_price_render?
+          owner_variants_price_render?  # Calls HostObject#variants_price_render?
         end
       end
 
       def render?
-        variants_subform_render?  # Calls HostObject#variants_subform_render?
+        owner_variants_subform_render?  # Calls HostObject#variants_subform_render?
       end
     end
   end
@@ -761,7 +761,7 @@ class ProductForm < ActionForm::Base
       output(type: :string)
 
       def render?
-        manufacturer_name_render?  # Calls HostObject#manufacturer_name_render?
+        owner_manufacturer_name_render?  # Calls HostObject#manufacturer_name_render?
       end
     end
   end
@@ -775,7 +775,7 @@ form = ProductForm.new(object: product, owner: host)
 
 #### **Ownership Chain Traversal**
 
-The composition system supports multi-level ownership chains. When a method is called on an element or subform, it searches up the ownership chain until it finds the method:
+The composition system supports multi-level ownership chains. When a method is called with the `owner_` prefix on an element or subform, it searches up the ownership chain until it finds the method:
 
 ```ruby
 class GrandparentForm < ActionForm::Base
@@ -795,18 +795,19 @@ class ChildForm < ActionForm::Base
     input(type: :text)
 
     def render?
-      shared_helper  # Will find ParentForm#shared_helper first
+      owner_shared_helper  # Will find ParentForm#shared_helper first
     end
   end
 end
 
 # If ChildForm has ParentForm as owner, and ParentForm has GrandparentForm as owner:
-# The method lookup order is: ChildForm -> ParentForm -> GrandparentForm
+# The method lookup order is: ParentForm -> GrandparentForm
+# Note: Methods must be prefixed with owner_ to trigger delegation
 ```
 
 #### **Accessing Owner Directly**
 
-You can access the owner directly using the `owner` accessor:
+You can access the owner directly using the `owner` accessor. However, for delegation, it's recommended to use the `owner_` prefix pattern:
 
 ```ruby
 class ProductForm < ActionForm::Base
@@ -815,13 +816,24 @@ class ProductForm < ActionForm::Base
     output(type: :string)
 
     def disabled?
-      # Access owner's methods directly
-      owner.current_user && !owner.current_user.admin?
+      # Preferred: Use owner_ prefix for delegation
+      owner_is_discount_disabled?
+
+      # Alternative: Direct access via owner accessor (requires owner to be set)
+      # owner.current_user && !owner.current_user.admin?
     end
 
     def placeholder
-      owner.discount_placeholder_text
+      # Preferred: Use owner_ prefix
+      owner_discount_placeholder_text
+
+      # Alternative: Direct access
+      # owner.discount_placeholder_text
     end
+  end
+
+  def is_discount_disabled?
+    current_user && !current_user.admin?
   end
 
   def current_user
@@ -833,6 +845,10 @@ class ProductForm < ActionForm::Base
   end
 end
 ```
+
+**When to use each approach:**
+- **`owner_method_name`**: Recommended for delegation - automatically searches the ownership chain
+- **`owner.method_name`**: Use when you need direct access and the owner is guaranteed to be set, or when chaining methods with safe navigation (`owner.current_user&.admin?`)
 
 #### **Ownership Hierarchy**
 
@@ -855,8 +871,13 @@ class OrderForm < ActionForm::Base
     output(type: :string)
 
     def render?
-      owner.current_user&.admin?
+      # Use owner_ prefix to delegate to owner method
+      owner_can_render_admin_notes?
     end
+  end
+
+  def can_render_admin_notes?
+    current_user&.admin?
   end
 
   def current_user
@@ -873,7 +894,8 @@ class RegistrationForm < ActionForm::Base
     output(type: :string)
 
     def disabled?
-      owner.email_locked?
+      # Delegate to owner's email_locked? method
+      owner_email_locked?
     end
   end
 
@@ -882,7 +904,7 @@ class RegistrationForm < ActionForm::Base
     output(type: :string)
 
     def disabled?
-      owner.email_locked?
+      owner_email_locked?
     end
   end
 
@@ -902,13 +924,14 @@ class SettingsForm < ActionForm::Base
         output(type: :bool)
 
         def render?
-          owner.feature_enabled?(:advanced_settings)
+          # Delegate with owner_ prefix
+          owner_feature_enabled?(:advanced_settings)
         end
       end
     end
 
     def render?
-      owner.feature_enabled?(:advanced_settings)
+      owner_feature_enabled?(:advanced_settings)
     end
   end
 
