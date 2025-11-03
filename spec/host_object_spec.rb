@@ -4,7 +4,7 @@ class ProductForm < ActionForm::Base
     output(type: :string)
 
     def render?
-      name_render?
+      owner_name_render?
     end
   end
 
@@ -15,7 +15,7 @@ class ProductForm < ActionForm::Base
         output(type: :string)
 
         def render?
-          variants_name_render?
+          owner_variants_name_render?
         end
       end
 
@@ -24,12 +24,12 @@ class ProductForm < ActionForm::Base
         output(type: :float)
 
         def render?
-          variants_price_render?
+          owner_variants_price_render?
         end
       end
 
       def render?
-        variants_subform_render?
+        owner_variants_subform_render?
       end
     end
   end
@@ -40,7 +40,7 @@ class ProductForm < ActionForm::Base
       output(type: :string)
 
       def render?
-        manufacturer_name_render?
+        owner_manufacturer_name_render?
       end
     end
   end
