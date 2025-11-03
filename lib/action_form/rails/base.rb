@@ -62,10 +62,6 @@ module ActionForm
         end
       end
 
-      def with_params(form_params)
-        self.class.new(model: @namespaced_model, scope: @scope, params: form_params, owner: self, **html_options)
-      end
-
       def params_definition(scope: self.scope)
         return super unless scope
 

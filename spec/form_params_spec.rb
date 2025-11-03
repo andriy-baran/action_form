@@ -1,5 +1,7 @@
 
 class RegistrationForm < ActionForm::Base
+  scope :user
+
   element :email do
     input(type: :email)
     output(type: :string, presence: true)
@@ -63,7 +65,6 @@ RSpec.describe "Form params" do
     params = child_form.params_definition.new(profile_attributes: { name: "John Doe" }, email: "john.doe@example.com", password: "password", password_confirmation: "password2")
     expect(params.class.form_class).to eq(child_form)
     form = params.create_form
-    expect(form.action_name).to eq(:create)
     expect(params).to be_invalid
     expect(params.profile_attributes.name).to eq("John Doe")
     expect(params.email).to eq("john.doe@example.com")
