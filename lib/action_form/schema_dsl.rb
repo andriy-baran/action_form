@@ -10,7 +10,7 @@ module ActionForm
 
     module ClassMethods # rubocop:disable Style/Documentation
       def params_class
-        EasyParams::Base
+        ActionForm::Params
       end
 
       def params_definition(*)
@@ -24,6 +24,7 @@ module ActionForm
 
       def create_params_definition # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         schema = Class.new(params_class)
+        schema.form_class = self
         elements.each do |name, element_definition|
           if element_definition < ActionForm::SubformsCollection
             # nested forms are passed as a hash that looks like this:
@@ -55,6 +56,7 @@ module ActionForm
 
       def create_params_definition # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         schema = Class.new(self.class.params_class)
+        schema.form_class = self.class
         elements_instances.select(&:render?).each do |element|
           case element
           when ActionForm::SubformsCollection

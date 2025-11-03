@@ -28,24 +28,42 @@ class RegistrationForm < ActionForm::Base
       end
     end
   end
+
+  def check_password_confirmation?
+    true
+  end
+
+  def check_password?
+    true
+  end
+
+  def check_profile_name?
+    true
+  end
+
+  def check_pets_name?
+    true
+  end
 end
 
 RSpec.describe "Form params" do
   it "renders a form with params" do
-    secure = true
     child_form = Class.new(RegistrationForm)
     child_form.params do
-      validates :password, presence: true, if: -> { secure }
-      validates :password_confirmation, presence: true, if: -> { secure }
-      validates :password, confirmation: true, if: -> { secure }
+      validates :password, presence: { if: :owner_check_password? }
+      validates :password_confirmation, presence: { if: :owner_check_password_confirmation? }
+      validates :password, confirmation: { if: :owner_check_password? }
       profile_attributes_schema do
-        validates :name, presence: true, if: -> { secure }
+        validates :name, presence: { if: :owner_check_profile_name? }
       end
       pets_attributes_schema do
-        validates :name, presence: true, if: -> { secure }
+        validates :name, presence: { if: :owner_check_pets_name? }
       end
     end
     params = child_form.params_definition.new(profile_attributes: { name: "John Doe" }, email: "john.doe@example.com", password: "password", password_confirmation: "password2")
+    expect(params.class.form_class).to eq(child_form)
+    form = params.create_form
+    expect(form.action_name).to eq(:create)
     expect(params).to be_invalid
     expect(params.profile_attributes.name).to eq("John Doe")
     expect(params.email).to eq("john.doe@example.com")
