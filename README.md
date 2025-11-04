@@ -1628,7 +1628,7 @@ class UsersController < ApplicationController
       redirect_to @user
     else
       # Custom validation errors are automatically available
-      @form = user_params.create_form
+      @form = user_params.create_form(action: request.path, method: request.method)
       render :new
     end
   end
@@ -1646,7 +1646,7 @@ class UsersController < ApplicationController
       redirect_to @user
     else
       # Custom validation errors (like password confirmation) are displayed
-      @form = user_params.create_form
+      @form = user_params.create_form(action: request.path, method: request.method)
       render :edit
     end
   end
