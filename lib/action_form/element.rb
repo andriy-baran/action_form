@@ -144,7 +144,7 @@ module ActionForm
     end
 
     def build_html_name(name, parent_name)
-      parent_name ? "#{parent_name}[#{name}]" : name
+      parent_name ? "#{parent_name}[#{name}]" : name.to_s
     end
 
     def build_html_id(name, parent_name)
