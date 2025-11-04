@@ -91,7 +91,7 @@ module ActionForm
     end
 
     def subform_value(name)
-      @object.public_send(name)
+      @object&.public_send(name) || @params&.public_send(:"#{name}_attributes")
     end
 
     def build_subform(name, form_definition, value: subform_value(name), index: nil)

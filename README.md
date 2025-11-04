@@ -404,7 +404,7 @@ class UsersController < ApplicationController
       @user = User.create!(user_params.to_h)
       redirect_to @user
     else
-      @form = @form.with_params(user_params)
+      @form = user_params.creare_form
       render :new
     end
   end
@@ -848,7 +848,7 @@ end
 
 **When to use each approach:**
 - **`owner_method_name`**: Recommended for delegation - automatically searches the ownership chain
-- **`owner.method_name`**: Use when you need direct access and the owner is guaranteed to be set, or when chaining methods with safe navigation (`owner.current_user&.admin?`)
+- **`owner.method_name`**: Useful when different owners in the chain define the same method. By default, the nearest owner will handle the call. If you want to customize which owner is used, consider using `alias_method` or explicitly referencing a higher owner (e.g., `owner.owner.some_method`).
 
 #### **Ownership Hierarchy**
 
@@ -1628,7 +1628,7 @@ class UsersController < ApplicationController
       redirect_to @user
     else
       # Custom validation errors are automatically available
-      @form = @form.with_params(user_params)
+      @form = user_params.create_form
       render :new
     end
   end
@@ -1646,7 +1646,7 @@ class UsersController < ApplicationController
       redirect_to @user
     else
       # Custom validation errors (like password confirmation) are displayed
-      @form = @form.with_params(user_params)
+      @form = user_params.create_form
       render :edit
     end
   end
@@ -1675,7 +1675,7 @@ class UserForm < ActionForm::Rails::Base
 end
 
 # When validation fails:
-@form = @form.with_params(invalid_params)
+@form = user_params.create_form
 # The form will automatically display validation errors
 ```
 
