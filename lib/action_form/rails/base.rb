@@ -40,6 +40,7 @@ module ActionForm
               Class.new(params_class) { has scope, klass }
             end
           end
+          @params_definitions[scope].form_class = self
           @params_definitions[scope]
         end
 
@@ -107,7 +108,7 @@ module ActionForm
       end
 
       def http_method
-        return "get" if @object.nil?
+        return html_options[:method].to_s.downcase if @object.nil?
 
         @object.persisted? ? "patch" : "post"
       end
@@ -117,7 +118,7 @@ module ActionForm
       end
 
       def html_method
-        html_options[:method] = html_options[:method].to_s.downcase == "get" ? "get" : "post"
+        html_options[:method].to_s.downcase == "get" ? "get" : "post"
       end
     end
   end

@@ -8,7 +8,7 @@ module ActionForm
     # submit buttons and form elements.
     module Rendering
       def render_form(&block)
-        form(**{ method: html_method, action: html_action, "accept-charset" => "UTF-8" }, **@html_options) do
+        form(**@html_options, **{ method: html_method, action: html_action, "accept-charset" => "UTF-8" }) do
           render_utf8_input
           render_authenticity_token
           render_method_input
