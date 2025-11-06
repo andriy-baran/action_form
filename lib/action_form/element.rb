@@ -4,6 +4,8 @@ module ActionForm
   # Represents a form element with input/output configuration and HTML attributes
   # rubocop:disable Metrics/ClassLength
   class Element
+    PROTECTED_TAGS = %i[input output options errors].freeze
+
     include ActionForm::Composition
 
     attr_reader :name, :input_options, :output_options, :html_name, :html_id, :select_options, :tags, :errors_messages
@@ -63,8 +65,9 @@ module ActionForm
         @label_options = [{ text: text, display: display }, html_options]
       end
 
-      def tags(**tags_list)
-        tags_list.merge!(tags_list)
+      def tags(**extra_tags)
+        filtered_tags = extra_tags.delete_if { |key, _| PROTECTED_TAGS.include?(key) }
+        tags_list.merge!(filtered_tags)
       end
     end
 
