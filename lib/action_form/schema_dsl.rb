@@ -18,7 +18,7 @@ module ActionForm
       end
 
       def params(&block)
-        @params_definition = create_params_definition(&block)
+        @params_definition = scope ? params_definition(scope: scope) : create_params_definition(&block)
         @params_definition.class_eval(&block) if block
       end
 

@@ -102,14 +102,16 @@ RSpec.describe "Form params" do
   it "renders a form with params" do
     child_form = Class.new(RegistrationForm)
     child_form.params do
-      validates :password, presence: { if: :owner_check_password? }
-      validates :password_confirmation, presence: { if: :owner_check_password_confirmation? }
-      validates :password, confirmation: { if: :owner_check_password? }
-      profile_attributes_schema do
-        validates :name, presence: { if: :owner_check_profile_name? }
-      end
-      devices_attributes_schema do
-        validates :name, presence: { if: :owner_check_devices_name? }
+      user_schema do
+        validates :password, presence: { if: :owner_check_password? }
+        validates :password_confirmation, presence: { if: :owner_check_password_confirmation? }
+        validates :password, confirmation: { if: :owner_check_password? }
+        profile_attributes_schema do
+          validates :name, presence: { if: :owner_check_profile_name? }
+        end
+        devices_attributes_schema do
+          validates :name, presence: { if: :owner_check_devices_name? }
+        end
       end
     end
     params = child_form.params_definition.new(user: { profile_attributes: { name: "John Doe" }, email: "john.doe@example.com", password: "password", password_confirmation: "password2" })
