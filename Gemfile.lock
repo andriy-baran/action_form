@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    action_form (0.6.3)
+    action_form (0.6.4)
       easy_params (~> 0.9.1)
       phlex (>= 2)
       railties (>= 6.0.0)
