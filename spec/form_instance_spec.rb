@@ -336,13 +336,11 @@ RSpec.describe "FormObject" do
   it "accepts params object and gets inputs' values from it" do
     # Create a simple params object that mimics Rails params
     params = FormObject.params_definition.new(
-      info: {
-        birthdate: "1985-05-15",
-        biography: "1",
-        interests: %w[2 4],
-        pets_attributes: [{ id: 3 }, { id: 5 }],
-        car_attributes: { id: 15, maker_id: 2 }
-      }
+      birthdate: "1985-05-15",
+      biography: "1",
+      interests: %w[2 4],
+      pets_attributes: [{ id: 3 }, { id: 5 }],
+      car_attributes: { id: 15, maker_id: 2 }
     )
 
     form = FormObject.new(model: Info.new, params: params)
@@ -490,12 +488,10 @@ RSpec.describe "FormObject" do
   it "displays inline errors when params have validation errors" do
     # Create params with validation errors
     params = FormObject.params_definition.new(
-      info: {
-        birthdate: "invalid-date",
-        biography: "",
-        pets_attributes: [{ id: nil }, { id: nil }],
-        car_attributes: { id: 15, maker_id: nil }
-      }
+      birthdate: "invalid-date",
+      biography: "",
+      pets_attributes: [{ id: nil }, { id: nil }],
+      car_attributes: { id: 15, maker_id: nil }
     )
 
     params.valid?
@@ -1173,23 +1169,21 @@ RSpec.describe "FormObject" do
 
     # Test with params that override model data
     params = ComplexFormObject.params_definition.new(
-      complex_info: {
-        name: "Jane Smith",
-        pets_attributes: [
-          { id: 3, name: "Max" },
-          { id: 4, name: "Bella" },
-          { id: 5, name: "Luna" }
-        ],
-        addresses_attributes: [
-          { street: "789 Pine St", city: "Seattle", zip: "98101" },
-          { street: "321 Elm St", city: "Portland", zip: "97201" }
-        ],
-        contacts_attributes: [
-          { type: "phone", value: "555-9876" },
-          { type: "email", value: "jane@example.com" },
-          { type: "fax", value: "555-5432" }
-        ]
-      }
+      name: "Jane Smith",
+      pets_attributes: [
+        { id: 3, name: "Max" },
+        { id: 4, name: "Bella" },
+        { id: 5, name: "Luna" }
+      ],
+      addresses_attributes: [
+        { street: "789 Pine St", city: "Seattle", zip: "98101" },
+        { street: "321 Elm St", city: "Portland", zip: "97201" }
+      ],
+      contacts_attributes: [
+        { type: "phone", value: "555-9876" },
+        { type: "email", value: "jane@example.com" },
+        { type: "fax", value: "555-5432" }
+      ]
     )
 
     form_with_params = ComplexFormObject.new(model: ComplexInfo.new, params: params)
@@ -1210,22 +1204,20 @@ RSpec.describe "FormObject" do
 
     # Test schema validation with nested data
     schema = form_with_params.class.params_definition.new(
-      complex_info: {
-        name: "Test User",
-        pets_attributes: [{ id: 1, name: "Test Pet" }],
-        addresses_attributes: [{ street: "Test St", city: "Test City", zip: "12345" }],
-        contacts_attributes: [{ type: "email", value: "test@example.com" }]
-      }
+      name: "Test User",
+      pets_attributes: [{ id: 1, name: "Test Pet" }],
+      addresses_attributes: [{ street: "Test St", city: "Test City", zip: "12345" }],
+      contacts_attributes: [{ type: "email", value: "test@example.com" }]
     )
 
-    expect(schema.complex_info.name).to eq("Test User")
-    expect(schema.complex_info.pets_attributes.first.id).to eq(1)
-    expect(schema.complex_info.pets_attributes.first.name).to eq("Test Pet")
-    expect(schema.complex_info.addresses_attributes.first.street).to eq("Test St")
-    expect(schema.complex_info.addresses_attributes.first.city).to eq("Test City")
-    expect(schema.complex_info.addresses_attributes.first.zip).to eq("12345")
-    expect(schema.complex_info.contacts_attributes.first.type).to eq("email")
-    expect(schema.complex_info.contacts_attributes.first.value).to eq("test@example.com")
+    expect(schema.name).to eq("Test User")
+    expect(schema.pets_attributes.first.id).to eq(1)
+    expect(schema.pets_attributes.first.name).to eq("Test Pet")
+    expect(schema.addresses_attributes.first.street).to eq("Test St")
+    expect(schema.addresses_attributes.first.city).to eq("Test City")
+    expect(schema.addresses_attributes.first.zip).to eq("12345")
+    expect(schema.contacts_attributes.first.type).to eq("email")
+    expect(schema.contacts_attributes.first.value).to eq("test@example.com")
 
     # Test default values when no model data is provided
     empty_model = ComplexInfo.new

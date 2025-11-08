@@ -102,19 +102,17 @@ RSpec.describe "Form params" do
   it "renders a form with params" do
     child_form = Class.new(RegistrationForm)
     child_form.params do
-      user_schema do
-        validates :password, presence: { if: :owner_check_password? }
-        validates :password_confirmation, presence: { if: :owner_check_password_confirmation? }
-        validates :password, confirmation: { if: :owner_check_password? }
-        profile_attributes_schema do
-          validates :name, presence: { if: :owner_check_profile_name? }
-        end
-        devices_attributes_schema do
-          validates :name, presence: { if: :owner_check_devices_name? }
-        end
+      validates :password, presence: { if: :owner_check_password? }
+      validates :password_confirmation, presence: { if: :owner_check_password_confirmation? }
+      validates :password, confirmation: { if: :owner_check_password? }
+      profile_attributes_schema do
+        validates :name, presence: { if: :owner_check_profile_name? }
+      end
+      devices_attributes_schema do
+        validates :name, presence: { if: :owner_check_devices_name? }
       end
     end
-    params = child_form.params_definition.new(user: { profile_attributes: { name: "John Doe" }, email: "john.doe@example.com", password: "password", password_confirmation: "password2" })
+    params = child_form.params_definition.new(profile_attributes: { name: "John Doe" }, email: "john.doe@example.com", password: "password", password_confirmation: "password2")
     expect(params.class.form_class).to eq(child_form)
     form = params.create_form(action: '/create', method: 'PUT')
     form.helpers = Helpers.new
@@ -122,10 +120,10 @@ RSpec.describe "Form params" do
     expect(form.scope).to eq(:user)
     expect(form.html_options[:action]).to eq('/create')
     expect(params).to be_invalid
-    expect(params.user.profile_attributes.name).to eq("John Doe")
-    expect(params.user.email).to eq("john.doe@example.com")
-    expect(params.user.password).to eq("password")
-    expect(params.user.password_confirmation).to eq("password2")
-    expect(params.errors.full_messages).to eq(["User devices attributes[0] name can't be blank", "User password confirmation doesn't match Password"])
+    expect(params.profile_attributes.name).to eq("John Doe")
+    expect(params.email).to eq("john.doe@example.com")
+    expect(params.password).to eq("password")
+    expect(params.password_confirmation).to eq("password2")
+    expect(params.errors.full_messages).to eq(["Devices attributes[0] name can't be blank", "Password confirmation doesn't match Password"])
   end
 end

@@ -12,7 +12,7 @@ module ActionForm
     attr_reader :elements_instances, :scope, :object, :html_options, :errors
 
     class << self
-      attr_writer :elements, :scope
+      attr_writer :elements, :scope, :params_definition
 
       def subform_class
         ActionForm::Subform
@@ -28,6 +28,8 @@ module ActionForm
         super
         subclass.elements = elements.dup
         subclass.scope = scope.dup
+        subclass.params_definition = Class.new(params_definition)
+        subclass.params_definition.form_class = subclass
       end
     end
 
@@ -35,7 +37,7 @@ module ActionForm
       super()
       @object = object
       @scope ||= scope
-      @params = @scope && params.respond_to?(@scope) ? params.public_send(@scope) : params
+      @params = params
       @html_options = html_options
       @elements_instances = []
       @owner = owner

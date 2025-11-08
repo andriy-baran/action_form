@@ -13,13 +13,12 @@ module ActionForm
         ActionForm::Params
       end
 
-      def params_definition(*)
+      def params_definition
         @params_definition ||= create_params_definition
       end
 
       def params(&block)
-        @params_definition = scope ? params_definition(scope: scope) : create_params_definition(&block)
-        @params_definition.class_eval(&block) if block
+        @params_definition = Class.new(params_definition, &block) if block
       end
 
       def create_params_definition # rubocop:disable Metrics/AbcSize, Metrics/MethodLength

@@ -31,19 +31,6 @@ module ActionForm
           @scope = model.model_name.param_key.to_sym
         end
 
-        def params_definition(scope: self.scope)
-          return super unless scope
-
-          @params_definitions ||= Hash.new do |h, key|
-            h[key] = begin
-              klass = super
-              Class.new(params_class) { has scope, klass }
-            end
-          end
-          @params_definitions[scope].form_class = self
-          @params_definitions[scope]
-        end
-
         def many(name, default: nil, &block)
           super
           elements[name].subform_definition.add_primary_key_element
