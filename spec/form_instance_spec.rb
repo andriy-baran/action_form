@@ -323,14 +323,14 @@ RSpec.describe "FormObject" do
     form.helpers = ViewHelpers.new
     html = form.call
     expect(html).to eq(expected_html)
-    schema = form.params_definition.new(info: { birthdate: "1990-01-01", biography: true, interests: [1, 3], pets_attributes: [{ id: 1 }, { id: 2 }],
-                                                car_attributes: { id: 10, maker_id: 1 } })
-    expect(schema.info.birthdate).to eq(Date.parse("1990-01-01"))
-    expect(schema.info.biography).to eq(true)
-    expect(schema.info.interests.to_a).to eq([1, 3])
-    expect(schema.info.pets_attributes.map(&:id)).to eq([1, 2])
-    expect(schema.info.car_attributes.maker_id).to eq("1")
-    expect(schema.info.car_attributes.to_h).to eq(id: 10, maker_id: "1")
+    schema = form.params_definition.new(birthdate: "1990-01-01", biography: true, interests: [1, 3], pets_attributes: [{ id: 1 }, { id: 2 }],
+                                        car_attributes: { id: 10, maker_id: 1 })
+    expect(schema.birthdate).to eq(Date.parse("1990-01-01"))
+    expect(schema.biography).to eq(true)
+    expect(schema.interests.to_a).to eq([1, 3])
+    expect(schema.pets_attributes.map(&:id)).to eq([1, 2])
+    expect(schema.car_attributes.maker_id).to eq("1")
+    expect(schema.car_attributes.to_h).to eq(color: nil,id: 10, maker_id: "1")
   end
 
   it "accepts params object and gets inputs' values from it" do

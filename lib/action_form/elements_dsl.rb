@@ -24,7 +24,6 @@ module ActionForm
 
       # TODO: add support for outputless elements
       def element(name, &block)
-        @params_definition = nil
         elements[name] = Class.new(ActionForm::Element)
         elements[name].class_eval(&block)
         define_singleton_method(:"#{name}_element") do |klass = nil, &block|
@@ -33,7 +32,6 @@ module ActionForm
       end
 
       def many(name, default: nil, &block)
-        @params_definition = nil
         subform_definition = Class.new(ActionForm::SubformsCollection)
         subform_definition.host_class = self
         subform_definition.class_eval(&block) if block
@@ -45,7 +43,6 @@ module ActionForm
       end
 
       def subform(name, default: nil, &block)
-        @params_definition = nil
         elements[name] = Class.new(subform_class)
         elements[name].class_eval(&block)
         elements[name].default = default if default

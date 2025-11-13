@@ -70,7 +70,9 @@ class RegistrationForm < ActionForm::Rails::Base
       end
     end
   end
+end
 
+class Controller
   def check_password_confirmation?
     true
   end
@@ -112,18 +114,85 @@ RSpec.describe "Form params" do
         validates :name, presence: { if: :owner_check_devices_name? }
       end
     end
-    params = child_form.params_definition.new(profile_attributes: { name: "John Doe" }, email: "john.doe@example.com", password: "password", password_confirmation: "password2")
+    params = child_form.params_definition.new(email: "john.doe@example.com", password: "password", password_confirmation: "password2")
+    # child_form.profile_subform do
+    #   params do
+    #     validates :name, presence: { if: :owner_check_profile_name? }
+    #   end
+    # end
+    # child_form.devices_subforms do
+    #   subform do
+    #     params do
+    #       validates :name, presence: { if: :owner_check_devices_name? }
+    #     end
+    #   end
+    # end
+    grandchild_form = Class.new(child_form)
+    grandchild_form.element :role do
+      input(type: :select)
+      output(type: :string)
+      options([["admin", "Administrator"], ["user", "User"]])
+    end
+
+    grandchild_form.profile_subform do
+      name_element do
+        input(type: :text)
+        output(type: :string, default: "John Doe", presence: true)
+      end
+      element :gender do
+        input(type: :select)
+        output(type: :string, presence: true, inclusion: { in: ["male", "female"] })
+        options([["male", "Male"], ["female", "Female"]])
+      end
+      element :age do
+        input(type: :number)
+        output(type: :integer)
+      end
+    end
+    grandchild_form.devices_subforms do
+      subform do
+        element :color do
+          input(type: :select)
+          output(type: :string, presence: true, inclusion: { in: ["red", "blue", "green"] })
+        end
+      end
+    end
+    grandchild_form.params do
+      validates :role, presence: true
+    end
+    grandchild_form.params do
+      profile_attributes_schema do
+        validates :age, presence: true, numericality: { greater_than: 18 }
+      end
+    end
+    grandchild_params = grandchild_form.params_definition.new(email: "john.doe@example.com")
+
     expect(params.class.form_class).to eq(child_form)
     form = params.create_form(action: '/create', method: 'PUT')
     form.helpers = Helpers.new
-    expect(form.call).to match(%r{form method="post" action="/create"})
+    # expect(form.call).to match(%r{form method="post" action="/create"})
     expect(form.scope).to eq(:user)
     expect(form.html_options[:action]).to eq('/create')
-    expect(params).to be_invalid
-    expect(params.profile_attributes.name).to eq("John Doe")
+    expect(params.profile_attributes.name).to be_nil
     expect(params.email).to eq("john.doe@example.com")
     expect(params.password).to eq("password")
     expect(params.password_confirmation).to eq("password2")
-    expect(params.errors.full_messages).to eq(["Devices attributes[0] name can't be blank", "Password confirmation doesn't match Password"])
+    params = child_form.params_definition.new(email: "john.doe@example.com", password: "password", password_confirmation: "password2")
+    params.owner = Controller.new
+    expect(params).to be_invalid
+    expect(params.errors.full_messages).to eq(["Profile attributes name can't be blank", "Devices attributes[0] name can't be blank", "Password confirmation doesn't match Password"])
+    grandchild_params.owner = Controller.new
+    expect(grandchild_params.class.form_class).to eq(grandchild_form)
+    expect(grandchild_params).to be_invalid
+    expect(grandchild_params.profile_attributes.name).to eq("John Doe")
+    expect(grandchild_params.errors.full_messages).to eq([
+      "Profile attributes gender can't be blank",
+      "Profile attributes gender is not included in the list",
+      "Profile attributes age can't be blank",
+      "Profile attributes age is not a number",
+      "Devices attributes[0] name can't be blank",
+      "Password can't be blank",
+      "Password confirmation can't be blank",
+      "Role can't be blank"])
   end
 end

@@ -17,14 +17,28 @@ module ActionForm
         @params_definition ||= create_params_definition
       end
 
-      def params(&block)
-        @params_definition = Class.new(params_definition, &block) if block
+      def params_blocks
+        @params_blocks ||= []
       end
 
-      def create_params_definition # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+      def params(&block)
+        params_blocks << block if block
+      end
+
+      def inherited_params_blocks
+        parent = superclass
+        blocks = []
+        while parent.respond_to?(:params_blocks)
+          blocks += parent.params_blocks
+          parent = parent.superclass
+        end
+        blocks
+      end
+
+      def create_params_definition(elements_definitions: elements) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         schema = Class.new(params_class)
         schema.form_class = self
-        elements.each do |name, element_definition|
+        elements_definitions.each do |name, element_definition|
           if element_definition < ActionForm::SubformsCollection
             # nested forms are passed as a hash that looks like this:
             # { "0" => { "id" => "1" }, "1" => { "id" => "2" } }
@@ -44,40 +58,24 @@ module ActionForm
             schema.public_send(method_name, name, **options)
           end
         end
+        patches = inherited_params_blocks + params_blocks
+        patches.each do |block|
+          schema = Class.new(schema, &block)
+        end
         schema
       end
     end
 
     module InstanceMethods # rubocop:disable Style/Documentation
-      def params_definition(*)
+      def params_definition
         @params_definition ||= create_params_definition
       end
 
-      def create_params_definition # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+      def create_params_definition
         schema = Class.new(self.class.params_class)
         schema.form_class = self.class
-        elements_instances.select(&:render?).each do |element|
-          case element
-          when ActionForm::SubformsCollection
-            # nested forms are passed as a hash that looks like this:
-            # { "0" => { "id" => "1" }, "1" => { "id" => "2" } }
-            # it is coercing to an array of hashes:
-            # [['0', { "id" => "1" }], ['1', { "id" => "2" }]]
-            # we need to normalize it to an array of hashes:
-            # [ { "id" => "1" }, { "
-            # id" => "2" } ]
-            schema.each(:"#{element.name}_attributes", element.subforms.first.params_definition,
-                        normalize: ->(value) { value.flatten.select { |v| v.is_a?(Hash) } },
-                        default: element.class.default)
-          when ActionForm::Subform
-            schema.has(:"#{element.name}_attributes", element.params_definition, default: element.class.default)
-          when ActionForm::Element
-            options = element.class.output_options.dup
-            method_name = options.delete(:type)
-            schema.public_send(method_name, element.name, **options)
-          end
-        end
-        schema
+        renderable_elements = elements_instances.select(&:render?).to_h { |element| [element.name, element.class] }
+        self.class.create_params_definition(elements_definitions: renderable_elements)
       end
     end
   end

@@ -50,18 +50,6 @@ module ActionForm
         end
       end
 
-      def params_definition(scope: self.scope)
-        return super unless scope
-
-        @params_definitions ||= Hash.new do |h, key|
-          h[key] = begin
-            klass = super
-            Class.new(self.class.params_class) { has scope, klass }
-          end
-        end
-        @params_definitions[scope]
-      end
-
       private
 
       def subform_html_name(name, index: nil)

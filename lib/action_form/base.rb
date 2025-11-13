@@ -27,9 +27,7 @@ module ActionForm
       def inherited(subclass)
         super
         subclass.elements = elements.dup
-        subclass.scope = scope.dup
-        subclass.params_definition = Class.new(params_definition)
-        subclass.params_definition.form_class = subclass
+        subclass.scope = scope&.dup
       end
     end
 
