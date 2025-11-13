@@ -170,7 +170,9 @@ RSpec.describe "Form params" do
     expect(params.class.form_class).to eq(child_form)
     form = params.create_form(action: '/create', method: 'PUT')
     form.helpers = Helpers.new
-    # expect(form.call).to match(%r{form method="post" action="/create"})
+    html = form.call
+    expect(html).to include('method="post"')
+    expect(html).to include('action="/create"')
     expect(form.scope).to eq(:user)
     expect(form.html_options[:action]).to eq('/create')
     expect(params.profile_attributes.name).to be_nil
@@ -190,6 +192,8 @@ RSpec.describe "Form params" do
       "Profile attributes gender is not included in the list",
       "Profile attributes age can't be blank",
       "Profile attributes age is not a number",
+      "Devices attributes[0] color can't be blank",
+      "Devices attributes[0] color is not included in the list",
       "Devices attributes[0] name can't be blank",
       "Password can't be blank",
       "Password confirmation can't be blank",

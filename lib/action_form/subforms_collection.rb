@@ -22,7 +22,7 @@ module ActionForm
 
       def inherited(subclass)
         super
-        subclass.subform_definition = subform_definition
+        subclass.subform_definition = Class.new(subform_definition) if subform_definition
         subclass.default = default
         subclass.host_class = host_class
       end

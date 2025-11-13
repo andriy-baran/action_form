@@ -29,7 +29,7 @@ module ActionForm
         parent = superclass
         blocks = []
         while parent.respond_to?(:params_blocks)
-          blocks += parent.params_blocks
+          parent.params_blocks.each { |block| blocks.unshift(block) }
           parent = parent.superclass
         end
         blocks
@@ -37,7 +37,6 @@ module ActionForm
 
       def create_params_definition(elements_definitions: elements) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         schema = Class.new(params_class)
-        schema.form_class = self
         elements_definitions.each do |name, element_definition|
           if element_definition < ActionForm::SubformsCollection
             # nested forms are passed as a hash that looks like this:
@@ -62,6 +61,7 @@ module ActionForm
         patches.each do |block|
           schema = Class.new(schema, &block)
         end
+        schema.form_class = self
         schema
       end
     end
