@@ -107,26 +107,27 @@ RSpec.describe "Form params" do
       validates :password, presence: { if: :owner_check_password? }
       validates :password_confirmation, presence: { if: :owner_check_password_confirmation? }
       validates :password, confirmation: { if: :owner_check_password? }
-      profile_attributes_schema do
+      # profile_attributes_schema do
+      #   validates :name, presence: { if: :owner_check_profile_name? }
+      # end
+      # devices_attributes_schema do
+      #   validates :name, presence: { if: :owner_check_devices_name? }
+      # end
+    end
+
+    child_form.profile_subform do
+      params do
         validates :name, presence: { if: :owner_check_profile_name? }
       end
-      devices_attributes_schema do
-        validates :name, presence: { if: :owner_check_devices_name? }
+    end
+    child_form.devices_subforms do
+      subform do
+        params do
+          validates :name, presence: { if: :owner_check_devices_name? }
+        end
       end
     end
     params = child_form.params_definition.new(email: "john.doe@example.com", password: "password", password_confirmation: "password2")
-    # child_form.profile_subform do
-    #   params do
-    #     validates :name, presence: { if: :owner_check_profile_name? }
-    #   end
-    # end
-    # child_form.devices_subforms do
-    #   subform do
-    #     params do
-    #       validates :name, presence: { if: :owner_check_devices_name? }
-    #     end
-    #   end
-    # end
     grandchild_form = Class.new(child_form)
     grandchild_form.element :role do
       input(type: :select)

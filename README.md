@@ -692,9 +692,9 @@ class ProductForm < ActionForm::Base
 end
 ```
 
-#### **Custom Host Object**
+#### **Custom Owner Object**
 
-You can pass a custom host object when initializing a form, allowing you to separate form logic from business logic:
+You can pass a custom owner object when initializing a form, allowing you to separate form logic from business logic:
 
 ```ruby
 class HostObject
@@ -1492,11 +1492,6 @@ Use `ActionForm::Rails::Base` instead of `ActionForm::Base` for Rails applicatio
 class UserForm < ActionForm::Rails::Base
   resource_model User
 
-  element :name do
-    input type: :text
-    output type: :string, presence: true
-  end
-
   element :email do
     input type: :email
     output type: :string, presence: true
@@ -1512,10 +1507,41 @@ class UserForm < ActionForm::Rails::Base
     output type: :string
   end
 
+  subform :profile, default: {} do
+    element :name do
+      input(type: :text)
+      output(type: :string)
+    end
+
+    params do
+      validates :name, presence: { if: :owner_check_profile_name? }
+    end
+  end
+
+  many :devices, default: [{}] do
+    subform do
+      element :name do
+        input(type: :text)
+        output(type: :string)
+      end
+
+      params do
+        validates :name, presence: { if: :owner_check_devices_name? }
+      end
+    end
+  end
+
   # Custom parameter validation for Rails integration
   params do
     validates :password, presence: true, length: { minimum: 6 }
     validates :password, confirmation: true
+    # You can customize nested schema from example above like this
+    profile_attributes_schema do
+      validates :name, presence: { if: :owner_check_profile_name? }
+    end
+    devices_attributes_schema do
+      validates :name, presence: { if: :owner_check_devices_name? }
+    end
   end
 end
 ```
@@ -1612,6 +1638,8 @@ params[:user][:addresses_attributes] = {
 ```
 
 #### **Controller Integration**
+
+There is a separate gem for Rails integration [steel_wheel|https://github.com/andriy-baran/steel_wheel]
 
 ```ruby
 class UsersController < ApplicationController
